@@ -1,0 +1,24 @@
+#!/bin/sh
+# ** AUTO GENERATED **
+
+count=0
+for AccessAnalyzers in `aws  accessanalyzer list-analyzers | jq '.analyzers[].name' | sed 's/"//g'`
+do
+if [ $(aws accessanalyzer get-analyzer --analyzer-name $AccessAnalyzers | jq '.analyzer.status' | grep ACTIVE | wc -l) -gt 0 ]; then
+   count=$((count+1))
+fi
+done
+
+VARIABLE=$(for AccessAnalyzers in `aws  accessanalyzer list-analyzers | jq '.analyzers[].name' | sed 's/"//g'`
+do
+AccessAnalyzerName=$(aws accessanalyzer list-analyzers | jq '.analyzers[].name' | sed 's/"//g')
+if [ $(aws accessanalyzer get-analyzer --analyzer-name $AccessAnalyzers | jq '.analyzer.status' | grep ACTIVE | sed 's/"//g'| wc -l) -gt 0 ]; then
+   echo "{ \"AccessKeyAnalyzer\" : \"$AccessAnalyzerName\" }"
+fi
+done | tr '\n' ',' | sed 's/,$//')
+
+if [ "$count" -eq "0" ]; then
+   echo "{ \"accessanalyzer\" : [ $VARIABLE ] }"
+else
+   echo "{ \"accessanalyzer\" : \"\" }"
+fi

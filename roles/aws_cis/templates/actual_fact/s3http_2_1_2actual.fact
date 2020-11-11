@@ -1,0 +1,24 @@
+#!/bin/bash
+# 2.1.2 Ensure S3 Bucket Policy allows HTTPS requests
+
+count=0
+for BucketName in `aws s3api list-buckets | jq -r '.Buckets[].Name'`;
+do
+if [ "$(aws s3api get-bucket-policy --bucket $BucketName | grep -oP 'aws:SecureTransport.":."\K.+?(?=\\")' | wc -l)" -eq 0 ]; then
+ count=$((count+1))
+fi
+done
+
+BucketNameValue=$(aws s3api list-buckets | jq '.Buckets[].Name' | sed 's/"//g')
+VARIABLE=$(for BucketName in `aws s3api list-buckets | jq -r '.Buckets[].Name'`;
+do
+if [ "$(aws s3api get-bucket-policy --bucket $BucketName | grep -oP 'aws:SecureTransport.":."\K.+?(?=\\")' | wc -l)" -eq 0 ]; then
+ echo "{ \"Buckets\" : \"$BucketNameValue\" }"
+fi
+done | tr '\n' ',' | sed 's/,$//')
+
+if [ "$count" -eq 0 ]; then
+echo "{ \"s3http\" : [ $VARIABLE ] }"
+else
+echo "{ \"s3http\" : \"\" }"
+fi

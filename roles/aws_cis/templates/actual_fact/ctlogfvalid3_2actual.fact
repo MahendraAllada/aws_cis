@@ -1,0 +1,17 @@
+#!/bin/bash
+# 3.2 Ensure CloudTrail log file validation is enabled
+
+if [ "$(aws cloudtrail describe-trails | jq '.trailList[].LogFileValidationEnabled' | grep true | wc -l)" -gt 0 ]; then
+   count=$((count+1))
+fi
+
+TrailNameValue=$(aws cloudtrail describe-trails | jq '.trailList[].Name' | sed 's/"//g')
+VARIABLE=$(if [ "$(aws cloudtrail describe-trails | jq '.trailList[].LogFileValidationEnabled' | grep true | wc -l)" -gt 0 ]; then
+   echo "{ \"TrailName\" : \"$TrailNameValue\" }"
+fi | tr '\n' ',' | sed 's/,$//')
+
+if [ "$count" -ne "0" ] ;then
+    echo "{ \"ctlogfvalid\" : \"\" }"
+else
+    echo "{ \"ctlogfvalid\" : [ $VARIABLE ] }"
+fi

@@ -1,0 +1,32 @@
+---
+- hosts: localhost
+  gather_facts: yes
+  become_method: sudo
+  become: yes
+
+  tasks:
+
+  - name: Collecting the facts information from database
+    shell: scl enable rh-postgresql10 "psql -d cis_benchmark -c \"select values from awscis where id = '1'\""
+    become_user: postgres
+    register: database
+    delegate_to: localhost
+
+  - debug: msg="{{ database.stdout_lines }}"
+    tags:
+      - rollback_awscis
+      - always
+
+  - name: Rollback 6.1.2 - localinfiledb
+    shell: echo "{{ database.stdout_lines[2] | from_json | json_query('localinfiledb_612_actual.localinfiledb[*].sqlinstancename') | replace('u','') }}" | sed -e 's/[][]//g' -e 's/, /\n/g' -e "s/['\"]//g"
+    register: localinfiledb
+    ignore_errors: True
+  - debug: msg="{{ item }}"
+    with_items:
+      - "{{localinfiledb.stdout_lines}}"
+#    when: inventory_hostname != 'localhost'
+    tags:
+      - localinfiledb
+      - '6.1.2'
+      - rollbacksix
+      - all

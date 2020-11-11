@@ -1,0 +1,19 @@
+#!/bin/sh
+# ** AUTO GENERATED **
+# 3.9 Ensure VPC flow logging is enabled in all VPCs
+
+count=0
+if [ "$(aws ec2 describe-flow-logs | jq -r '.FlowLogs[].FlowLogStatus' | grep ACTIVE | wc -l)" -eq 0 ];then
+    count=$((count+1))
+fi
+
+VARIABLE=$(if [ "$(aws ec2 describe-flow-logs | jq -r '.FlowLogs[].FlowLogStatus' | grep ACTIVE | wc -l)" -eq 0 ];then
+FlowLogStatusValue=$(aws ec2 describe-flow-logs | jq -r '.FlowLogs[].FlowLogId')
+   echo "{ \"FlowLogStatus\" : \"$FlowLogStatusValue\" }"
+fi | tr '\n' ',' | sed 's/,$//')
+
+if [ "$count" -ne "0" ]; then
+   echo "{ \"flowlog\" : [ $VARIABLE ] }"
+else
+   echo "{ \"flowlog\" : \"FlowLog not created\" }"
+fi

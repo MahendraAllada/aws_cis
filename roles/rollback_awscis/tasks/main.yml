@@ -1,0 +1,1187 @@
+---
+### Rollback for AWS-CIS ###
+
+  - name: Collecting the facts information from database
+    shell: scl enable rh-postgresql10 "psql -d cis_benchmark -c \"select values from awscis where ipaddress = '{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}'\""
+    become_user: postgres
+    register: database
+    delegate_to: localhost
+    tags:
+      - rollback_awscis
+      - always
+
+  - name: Rollback 4.1 - lodgmetralaforunauthcalls
+    shell: echo "{{ (database.stdout_lines[2]|from_json).lodgmetralaforunauthcalls4_1actual.lodgmetralaforunauthcalls }}"
+    register: lodgmetralaforunauthcalls
+    tags:
+      - lodgmetralaforunauthcalls
+      - '4.1'
+      - rollbackfour
+      - all
+
+  - name: Rollback 4.1 - lodgmetralaforunauthcalls
+    ec2_metric_alarm:
+      state: absent
+      region: "{{ region }}"
+      name: "{{ name1 }}"
+      metric: "{{ metric1 }}"
+      namespace: "{{ namespace }}"
+      statistic: "Minimum"
+      comparison: ">="
+      threshold: "{{ threshold }}"
+      period: "{{ period }}"
+      evaluation_periods: "{{ evaluation_periods }}"
+      unit: "Count"
+      alarm_actions: "{{ alarm_actions }}"
+    failed_when: no
+    when: ((database.stdout_lines[2]|from_json).lodgmetralaforunauthcalls4_1actual.lodgmetralaforunauthcalls) == ""
+    tags:
+      - lodgmetralaforunauthcalls
+      - '4.1'
+      - rollbackfour
+      - all
+
+  - name: Rollback 4.1 - lodgmetralaforunauthcalls
+    community.aws.cloudwatchlogs_log_group_metric_filter:
+      log_group_name: "{{ log_group_name }}"
+      filter_name: "{{ filter_name1 }}"
+      state: absent
+    failed_when: no
+    when: ((database.stdout_lines[2]|from_json).lodgmetralaforunauthcalls4_1actual.lodgmetralaforunauthcalls) == ""
+    tags:
+      - lodgmetralaforunauthcalls
+      - '4.1'
+      - rollbackfour
+      - all
+
+  - name: Rollback 4.1 - lodgmetralaforunauthcalls
+    sns_topic:
+      name: "{{ name }}"
+      state: absent
+      display_name: "SNS topic"
+      subscriptions:
+        - endpoint: "{{ endpoint }}"
+          protocol: "{{ protocol }}"
+    failed_when: no
+    when: ((database.stdout_lines[2]|from_json).lodgmetralaforunauthcalls4_1actual.lodgmetralaforunauthcalls) == ""
+    tags:
+      - lodgmetralaforunauthcalls
+      - '4.1'
+      - rollbackfour
+      - all
+
+  - name: Rollback 4.2 - lodgmetralaformangconsigninmfa
+    shell: echo "{{ (database.stdout_lines[2]|from_json).lodgmetralaformangconsigninmfa4_2actual.lodgmetralaformangconsigninmfa }}"
+    register: lodgmetralaformangconsigninmfa
+    tags:
+      - lodgmetralaformangconsigninmfa
+      - '4.2'
+      - rollbackfour
+      - all
+
+  - name: Rollback 4.2 - lodgmetralaformangconsigninmfa
+    community.aws.cloudwatchlogs_log_group_metric_filter:
+      log_group_name: "{{ log_group_name }}"
+      filter_name: "{{ filter_name2 }}"
+      state: absent
+    failed_when: no
+    when: ((database.stdout_lines[2]|from_json).lodgmetralaformangconsigninmfa4_2actual.lodgmetralaformangconsigninmfa) == ""
+    tags:
+      - lodgmetralaformangconsigninmfa
+      - '4.2'
+      - rollbackfour
+      - all
+
+  - name: Rollback 4.2 - lodgmetralaformangconsigninmfa
+    ec2_metric_alarm:
+      state: absent
+      region: "{{ region }}"
+      name: "{{ name2 }}"
+      metric: "{{ metric2 }}"
+      namespace: "{{ namespace }}"
+      statistic: "Minimum"
+      comparison: ">="
+      threshold: "{{ threshold }}"
+      period: "{{ period }}"
+      evaluation_periods: "{{ evaluation_periods }}"
+      unit: "Count"
+      alarm_actions: "{{ alarm_actions }}"
+    failed_when: no
+    when: ((database.stdout_lines[2]|from_json).lodgmetralaformangconsigninmfa4_2actual.lodgmetralaformangconsigninmfa) == ""
+    tags:
+      - lodgmetralaformangconsigninmfa
+      - '4.2'
+      - rollbackfour
+      - all
+
+  - name: Rollback 4.2 - lodgmetralaformangconsigninmfa
+    sns_topic:
+      name: "{{ name }}"
+      state: absent
+      display_name: "SNS topic"
+      subscriptions:
+        - endpoint: "{{ endpoint }}"
+          protocol: "{{ protocol }}"
+    failed_when: no
+    when: ((database.stdout_lines[2]|from_json).lodgmetralaformangconsigninmfa4_2actual.lodgmetralaformangconsigninmfa) == ""
+    tags:
+      - lodgmetralaformangconsigninmfa
+      - '4.2'
+      - rollbackfour
+      - all
+  
+  - name: Rollback 4.3 - lodgmetralaforusageofrootacc
+    shell: echo "{{ (database.stdout_lines[2]|from_json).lodgmetralaforusageofrootacc4_3actual.lodgmetralaforusageofrootacc }}"
+    register: lodgmetralaforusageofrootacc4
+    tags:
+      - lodgmetralaforusageofrootacc4
+      - '4.3'
+      - rollbackfour
+      - all
+
+  - name: Rollback 4.3 - lodgmetralaforusageofrootacc
+    community.aws.cloudwatchlogs_log_group_metric_filter:
+      log_group_name: "{{ log_group_name }}"
+      filter_name: "{{ filter_name3 }}"
+      state: absent
+    failed_when: no
+    when: ((database.stdout_lines[2]|from_json).lodgmetralaforusageofrootacc4_3actual.lodgmetralaforusageofrootacc) == ""
+    tags:
+      - lodgmetralaforusageofrootacc4
+      - '4.3'
+      - rollbackfour
+      - all
+
+  - name: Rollback 4.3 - lodgmetralaforusageofrootacc
+    ec2_metric_alarm:
+      state: absent
+      region: "{{ region }}"
+      name: "{{ name3 }}"
+      metric: "{{ metric3 }}"
+      namespace: "{{ namespace }}"
+      statistic: "Minimum"
+      comparison: ">="
+      threshold: "{{ threshold }}"
+      period: "{{ period }}"
+      evaluation_periods: "{{ evaluation_periods }}"
+      unit: "Count"
+      alarm_actions: "{{ alarm_actions }}"
+    failed_when: no
+    when: ((database.stdout_lines[2]|from_json).lodgmetralaforusageofrootacc4_3actual.lodgmetralaforusageofrootacc) == ""
+    tags:
+      - lodgmetralaforusageofrootacc4
+      - '4.3'
+      - rollbackfour
+      - all
+
+  - name: Rollback 4.3 - lodgmetralaforusageofrootacc
+    sns_topic:
+      name: "{{ name }}"
+      state: absent
+      display_name: "SNS topic"
+      subscriptions:
+        - endpoint: "{{ endpoint }}"
+          protocol: "{{ protocol }}"
+    failed_when: no
+    when: ((database.stdout_lines[2]|from_json).lodgmetralaforusageofrootacc4_3actual.lodgmetralaforusageofrootacc) == ""
+    tags:
+      - lodgmetralaforusageofrootacc4
+      - '4.3'
+      - rollbackfour
+      - all
+
+  - name: Rollback 4.4 - lodgmetralaforIAMpolchanges
+    shell: echo "{{ (database.stdout_lines[2]|from_json).lodgmetralaforIAMpolchanges4_4actual.lodgmetralaforIAMpolchanges }}"
+    register: lodgmetralaforIAMpolchanges
+    tags:
+      - lodgmetralaforIAMpolchanges
+      - '4.4'
+      - rollbackfour
+      - all
+
+  - name: Rollback 4.4 - lodgmetralaforIAMpolchanges
+    community.aws.cloudwatchlogs_log_group_metric_filter:
+      log_group_name: "{{ log_group_name }}"
+      filter_name: "{{ filter_name4  }}"
+      state: absent
+    failed_when: no
+    when: ((database.stdout_lines[2]|from_json).lodgmetralaforIAMpolchanges4_4actual.lodgmetralaforIAMpolchanges) == ""
+    tags:
+      - lodgmetralaforIAMpolchanges
+      - '4.4'
+      - rollbackfour
+      - all
+
+  - name: Rollback 4.4 - lodgmetralaforIAMpolchanges
+    ec2_metric_alarm:
+      state: absent
+      region: "{{ region }}"
+      name: "{{ name4 }}"
+      metric: "{{ metric4 }}"
+      namespace: "{{ namespace }}"
+      statistic: "Minimum"
+      comparison: ">="
+      threshold: "{{ threshold }}"
+      period: "{{ period }}"
+      evaluation_periods: "{{ evaluation_periods }}"
+      unit: "Count"
+      alarm_actions: "{{ alarm_actions }}"
+    failed_when: no
+    when: ((database.stdout_lines[2]|from_json).lodgmetralaforIAMpolchanges4_4actual.lodgmetralaforIAMpolchanges) == ""
+    tags:
+      - lodgmetralaforIAMpolchanges
+      - '4.4'
+      - rollbackfour
+      - all
+
+  - name: Rollback 4.4 - lodgmetralaforIAMpolchanges
+    sns_topic:
+      name: "{{ name }}"
+      state: absent
+      display_name: "SNS topic"
+      subscriptions:
+        - endpoint: "{{ endpoint }}"
+          protocol: "{{ protocol }}"
+    failed_when: no
+    when: ((database.stdout_lines[2]|from_json).lodgmetralaforIAMpolchanges4_4actual.lodgmetralaforIAMpolchanges) != ""
+    tags:
+      - lodgmetralaforIAMpolchanges
+      - '4.4'
+      - rollbackfour
+      - all
+
+  - name: Rollback 4.5 - lodgmetralaforCTconfigchanges
+    shell: echo "{{ (database.stdout_lines[2]|from_json).lodgmetralaforCTconfigchanges_4_5actual.lodgmetralaforCTconfigchanges }}"
+    register: lodgmetralaforCTconfigchanges
+    tags:
+      - lodgmetralaforCTconfigchanges
+      - '4.5'
+      - rollbackfour
+      - all
+
+  - name: Rollback 4.5 - lodgmetralaforCTconfigchanges
+    community.aws.cloudwatchlogs_log_group_metric_filter:
+      log_group_name: "{{ log_group_name }}"
+      filter_name: "{{ filter_name5  }}"
+      state: absent
+    failed_when: no
+    when: ((database.stdout_lines[2]|from_json).lodgmetralaforCTconfigchanges_4_5actual.lodgmetralaforCTconfigchanges) == ""
+    tags:
+      - lodgmetralaforCTconfigchanges
+      - '4.5'
+      - rollbackfour
+      - all
+
+  - name: Rollback 4.5 - lodgmetralaforCTconfigchanges
+    ec2_metric_alarm:
+      state: absent
+      region: "{{ region }}"
+      name: "{{ name5 }}"
+      metric: "{{ metric5 }}"
+      namespace: "{{ namespace }}"
+      statistic: "Minimum"
+      comparison: ">="
+      threshold: "{{ threshold }}"
+      period: "{{ period }}"
+      evaluation_periods: "{{ evaluation_periods }}"
+      unit: "Count"
+      alarm_actions: "{{ alarm_actions }}"
+    failed_when: no
+    when: ((database.stdout_lines[2]|from_json).lodgmetralaforCTconfigchanges_4_5actual.lodgmetralaforCTconfigchanges) == ""
+    tags:
+      - lodgmetralaforCTconfigchanges
+      - '4.5'
+      - rollbackfour
+      - all
+
+  - name: Rollback 4.5 - lodgmetralaforCTconfigchanges
+    sns_topic:
+      name: "{{ name }}"
+      state: absent
+      display_name: "SNS topic"
+      subscriptions:
+        - endpoint: "{{ endpoint }}"
+          protocol: "{{ protocol }}"
+    failed_when: no
+    when: ((database.stdout_lines[2]|from_json).lodgmetralaforCTconfigchanges_4_5actual.lodgmetralaforCTconfigchanges) == ""
+    tags:
+      - lodgmetralaforCTconfigchanges
+      - '4.5'
+      - rollbackfour
+      - all
+
+  - name: Rollback 4.6 - lodgmetralaforawsmangconsauthfail
+    shell: echo "{{ (database.stdout_lines[2]|from_json).lodgmetralaforawsmangconsauthfail_4_6actual.lodgmetralaforawsmangconsauthfail }}"
+    register: lodgmetralaforawsmangconsauthfail
+    tags:
+      - lodgmetralaforawsmangconsauthfail
+      - '4.6'
+      - rollbackfour
+      - all
+
+  - name: Rollback 4.6 - lodgmetralaforCTconfigchanges
+    community.aws.cloudwatchlogs_log_group_metric_filter:
+      log_group_name: "{{ log_group_name }}"
+      filter_name: "{{ filter_name6  }}"
+      state: absent
+    failed_when: no
+    when: ((database.stdout_lines[2]|from_json).lodgmetralaforawsmangconsauthfail_4_6actual.lodgmetralaforawsmangconsauthfail) == ""
+    tags:
+      - lodgmetralaforawsmangconsauthfail
+      - '4.6'
+      - rollbackfour
+      - all
+
+  - name: Rollback 4.6 - lodgmetralaforCTconfigchanges
+    ec2_metric_alarm:
+      state: absent
+      region: "{{ region }}"
+      name: "{{ name6 }}"
+      metric: "{{ metric6 }}"
+      namespace: "{{ namespace }}"
+      statistic: "Minimum"
+      comparison: ">="
+      threshold: "{{ threshold }}"
+      period: "{{ period }}"
+      evaluation_periods: "{{ evaluation_periods }}"
+      unit: "Count"
+      alarm_actions: "{{ alarm_actions }}"
+    failed_when: no
+    when: ((database.stdout_lines[2]|from_json).lodgmetralaforawsmangconsauthfail_4_6actual.lodgmetralaforawsmangconsauthfail) == ""
+    tags:
+      - lodgmetralaforawsmangconsauthfail
+      - '4.6'
+      - rollbackfour
+      - all
+
+  - name: Rollback 4.6 - lodgmetralaforCTconfigchanges
+    sns_topic:
+      name: "{{ name }}"
+      state: absent
+      display_name: "SNS topic"
+      subscriptions:
+        - endpoint: "{{ endpoint }}"
+          protocol: "{{ protocol }}"
+    failed_when: no
+    when: ((database.stdout_lines[2]|from_json).lodgmetralaforawsmangconsauthfail_4_6actual.lodgmetralaforawsmangconsauthfail) == ""
+    tags:
+      - lodgmetralaforawsmangconsauthfail
+      - '4.6'
+      - rollbackfour
+      - all
+
+  - name: Rollback 4.7 - lodgmetralafordelofCMK
+    shell: echo "{{ (database.stdout_lines[2]|from_json).lodgmetralafordelofCMK_4_7actual.lodgmetralafordelofCMK }}"
+    register: lodgmetralafordelofCMK
+    tags:
+      - lodgmetralafordelofCMK
+      - '4.7'
+      - rollbackfour
+      - all
+
+  - name: Rollback 4.7 - lodgmetralafordelofCMK
+    community.aws.cloudwatchlogs_log_group_metric_filter:
+      log_group_name: "{{ log_group_name }}"
+      filter_name: "{{ filter_name7 }}"
+      state: absent
+    failed_when: no
+    when: ((database.stdout_lines[2]|from_json).lodgmetralafordelofCMK_4_7actual.lodgmetralafordelofCMK) == ""
+    tags:
+      - lodgmetralafordelofCMK
+      - '4.7'
+      - rollbackfour
+      - all
+
+  - name: Rollback 4.7 - lodgmetralafordelofCMK
+    ec2_metric_alarm:
+      state: absent
+      region: "{{ region }}"
+      name: "{{ name7 }}"
+      metric: "{{ metric7 }}"
+      namespace: "{{ namespace }}"
+      statistic: "Minimum"
+      comparison: ">="
+      threshold: "{{ threshold }}"
+      period: "{{ period }}"
+      evaluation_periods: "{{ evaluation_periods }}"
+      unit: "Count"
+      alarm_actions: "{{ alarm_actions }}"
+    failed_when: no
+    when: ((database.stdout_lines[2]|from_json).lodgmetralafordelofCMK_4_7actual.lodgmetralafordelofCMK) == ""
+    tags:
+      - lodgmetralafordelofCMK
+      - '4.7'
+      - rollbackfour
+      - all
+
+  - name: Rollback 4.7 - lodgmetralafordelofCMK
+    sns_topic:
+      name: "{{ name }}"
+      state: absent
+      display_name: "SNS topic"
+      subscriptions:
+        - endpoint: "{{ endpoint }}"
+          protocol: "{{ protocol }}"
+    failed_when: no
+    when: ((database.stdout_lines[2]|from_json).lodgmetralafordelofCMK_4_7actual.lodgmetralafordelofCMK) == ""
+    tags:
+      - lodgmetralafordelofCMK
+      - '4.7'
+      - rollbackfour
+      - all
+
+  - name: Rollback 4.8 - lodgmetralafors3buckpolchanges
+    shell: echo "{{ (database.stdout_lines[2]|from_json).lodgmetralafors3buckpolchanges4_8actual.lodgmetralafors3buckpolchanges }}"
+    register: lodgmetralafors3buckpolchanges
+    tags:
+      - lodgmetralafors3buckpolchanges
+      - '4.8'
+      - rollbackfour
+      - all
+
+  - name: Rollback 4.8 - lodgmetralafors3buckpolchanges
+    community.aws.cloudwatchlogs_log_group_metric_filter:
+      log_group_name: "{{ log_group_name }}"
+      filter_name: "{{ filter_name8 }}"
+      state: absent
+    failed_when: no
+    when: ((database.stdout_lines[2]|from_json).lodgmetralafors3buckpolchanges4_8actual.lodgmetralafors3buckpolchanges) == ""
+    tags:
+      - lodgmetralafors3buckpolchanges
+      - '4.8'
+      - rollbackfour
+      - all
+
+  - name: Rollback 4.8 - lodgmetralafors3buckpolchanges
+    ec2_metric_alarm:
+      state: absent
+      region: "{{ region }}"
+      name: "{{ name8 }}"
+      metric: "{{ metric8 }}"
+      namespace: "{{ namespace }}"
+      statistic: "Minimum"
+      comparison: ">="
+      threshold: "{{ threshold }}"
+      period: "{{ period }}"
+      evaluation_periods: "{{ evaluation_periods }}"
+      unit: "Count"
+      alarm_actions: "{{ alarm_actions }}"
+    failed_when: no
+    when: ((database.stdout_lines[2]|from_json).lodgmetralafors3buckpolchanges4_8actual.lodgmetralafors3buckpolchanges) == ""
+    tags:
+      - lodgmetralafors3buckpolchanges
+      - '4.8'
+      - rollbackfour
+      - all
+
+  - name: Rollback 4.8 - lodgmetralafors3buckpolchanges
+    sns_topic:
+      name: "{{ name }}"
+      state: absent
+      display_name: "SNS topic"
+      subscriptions:
+        - endpoint: "{{ endpoint }}"
+          protocol: "{{ protocol }}"
+    failed_when: no
+    when: ((database.stdout_lines[2]|from_json).lodgmetralafors3buckpolchanges4_8actual.lodgmetralafors3buckpolchanges) == ""
+    tags:
+      - lodgmetralafors3buckpolchanges
+      - '4.8'
+      - rollbackfour
+      - all
+
+  - name: Rollback 4.9 - lodgmetralaforawsconfigchanges
+    shell: echo "{{ (database.stdout_lines[2]|from_json).lodgmetralaforawsconfigchanges_4_9actual.lodgmetralaforawsconfigchanges }}"
+    register: lodgmetralaforawsconfigchanges
+    tags:
+      - lodgmetralaforawsconfigchanges
+      - '4.9'
+      - rollbackfour
+      - all
+
+  - name: Rollback 4.9 - lodgmetralaforawsconfigchanges
+    community.aws.cloudwatchlogs_log_group_metric_filter:
+      log_group_name: "{{ log_group_name }}"
+      filter_name: "{{ filter_name9 }}"
+      state: absent
+    failed_when: no
+    when: ((database.stdout_lines[2]|from_json).lodgmetralaforawsconfigchanges_4_9actual.lodgmetralaforawsconfigchanges) == ""
+    tags:
+      - lodgmetralaforawsconfigchanges
+      - '4.9'
+      - rollbackfour
+      - all
+
+  - name: Rollback 4.9 - lodgmetralaforawsconfigchanges
+    ec2_metric_alarm:
+      state: absent
+      region: "{{ region }}"
+      name: "{{ name9 }}"
+      metric: "{{ metric9 }}"
+      namespace: "{{ namespace }}"
+      statistic: "Minimum"
+      comparison: ">="
+      threshold: "{{ threshold }}"
+      period: "{{ period }}"
+      evaluation_periods: "{{ evaluation_periods }}"
+      unit: "Count"
+      alarm_actions: "{{ alarm_actions }}"
+    failed_when: no
+    when: ((database.stdout_lines[2]|from_json).lodgmetralaforawsconfigchanges_4_9actual.lodgmetralaforawsconfigchanges) == ""
+    tags:
+      - lodgmetralaforawsconfigchanges
+      - '4.9'
+      - rollbackfour
+      - all
+
+  - name: Rollback 4.9 - lodgmetralaforawsconfigchanges
+    sns_topic:
+      name: "{{ name }}"
+      state: absent
+      display_name: "SNS topic"
+      subscriptions:
+        - endpoint: "{{ endpoint }}"
+          protocol: "{{ protocol }}"
+    failed_when: no
+    when: ((database.stdout_lines[2]|from_json).lodgmetralaforawsconfigchanges_4_9actual.lodgmetralaforawsconfigchanges) == ""
+    tags:
+      - lodgmetralaforawsconfigchanges
+      - '4.9'
+      - rollbackfour
+      - all
+
+  - name: Rollback 4.10 - lodgmetralaforsecgrpchanges
+    shell: echo "{{ (database.stdout_lines[2]|from_json).lodgmetralaforsecgrpchanges4_10actual.lodgmetralaforsecgrpchanges }}"
+    register: lodgmetralaforsecgrpchanges
+    tags:
+      - lodgmetralaforsecgrpchanges
+      - '4.10'
+      - rollbackfour
+      - all
+
+  - name: Rollback 4.10 - lodgmetralaforsecgrpchanges
+    community.aws.cloudwatchlogs_log_group_metric_filter:
+      log_group_name: "{{ log_group_name }}"
+      filter_name: "{{ filter_name10 }}"
+      state: absent
+    failed_when: no
+    when: ((database.stdout_lines[2]|from_json).lodgmetralaforsecgrpchanges4_10actual.lodgmetralaforsecgrpchanges) == ""
+    tags:
+      - lodgmetralaforsecgrpchanges
+      - '4.10'
+      - rollbackfour
+      - all
+
+  - name: Rollback 4.10 - lodgmetralaforsecgrpchanges
+    ec2_metric_alarm:
+      state: absent
+      region: "{{ region }}"
+      name: "{{ name10 }}"
+      metric: "{{ metric10 }}"
+      namespace: "{{ namespace }}"
+      statistic: "Minimum"
+      comparison: ">="
+      threshold: "{{ threshold }}"
+      period: "{{ period }}"
+      evaluation_periods: "{{ evaluation_periods }}"
+      unit: "Count"
+      alarm_actions: "{{ alarm_actions }}"
+    failed_when: no
+    when: ((database.stdout_lines[2]|from_json).lodgmetralaforsecgrpchanges4_10actual.lodgmetralaforsecgrpchanges) == ""
+    tags:
+      - lodgmetralaforsecgrpchanges
+      - '4.10'
+      - rollbackfour
+      - all
+
+  - name: Rollback 4.10 - lodgmetralaforsecgrpchanges
+    sns_topic:
+      name: "{{ name }}"
+      state: absent
+      display_name: "SNS topic"
+      subscriptions:
+        - endpoint: "{{ endpoint }}"
+          protocol: "{{ protocol }}"
+    failed_when: no
+    when: ((database.stdout_lines[2]|from_json).lodgmetralaforsecgrpchanges4_10actual.lodgmetralaforsecgrpchanges) == ""
+    tags:
+      - lodgmetralaforsecgrpchanges
+      - '4.10'
+      - rollbackfour
+      - all
+
+  - name: Rollback 4.11 - lodgmetralaforNACL
+    shell: echo "{{ (database.stdout_lines[2]|from_json).lodgmetralaforNACL4_11actual.lodgmetralaforNACL }}"
+    register: lodgmetralaforNACL
+    tags:
+      - lodgmetralaforNACL
+      - '4.11'
+      - rollbackfour
+      - all
+
+  - name: Rollback 4.11 - lodgmetralaforNACL
+    community.aws.cloudwatchlogs_log_group_metric_filter:
+      log_group_name: "{{ log_group_name }}"
+      filter_name: "{{ filter_name11 }}"
+      state: absent
+    failed_when: no
+    when: ((database.stdout_lines[2]|from_json).lodgmetralaforNACL4_11actual.lodgmetralaforNACL) == ""
+    tags:
+      - lodgmetralaforNACL
+      - '4.11'
+      - rollbackfour
+      - all
+
+  - name: Rollback 4.11 - lodgmetralaforNACL
+    ec2_metric_alarm:
+      state: absent
+      region: "{{ region }}"
+      name: "{{ name11 }}"
+      metric: "{{ metric11 }}"
+      namespace: "{{ namespace }}"
+      statistic: "Minimum"
+      comparison: ">="
+      threshold: "{{ threshold }}"
+      period: "{{ period }}"
+      evaluation_periods: "{{ evaluation_periods }}"
+      unit: "Count"
+      alarm_actions: "{{ alarm_actions }}"
+    failed_when: no
+    when: ((database.stdout_lines[2]|from_json).lodgmetralaforNACL4_11actual.lodgmetralaforNACL) == ""
+    tags:
+      - lodgmetralaforNACL
+      - '4.11'
+      - rollbackfour
+      - all
+
+  - name: Rollback 4.11 - lodgmetralaforNACL
+    sns_topic:
+      name: "{{ name }}"
+      state: absent
+      display_name: "SNS topic"
+      subscriptions:
+        - endpoint: "{{ endpoint }}"
+          protocol: "{{ protocol }}"
+    failed_when: no
+    when: ((database.stdout_lines[2]|from_json).lodgmetralaforNACL4_11actual.lodgmetralaforNACL) == ""
+    tags:
+      - lodgmetralaforNACL
+      - '4.11'
+      - rollbackfour
+      - all
+
+  - name: Rollback 4.12 - lodgmetralafornetworkgatway
+    shell: echo "{{ (database.stdout_lines[2]|from_json).lodgmetralafornetworkgatway4_12actual.lodgmetralafornetworkgatway }}"
+    register: lodgmetralafornetworkgatway
+    tags:
+      - lodgmetralafornetworkgatway
+      - '4.12'
+      - rollbackfour
+      - all
+
+  - name: Rollback 4.12 - lodgmetralafornetworkgatway
+    community.aws.cloudwatchlogs_log_group_metric_filter:
+      log_group_name: "{{ log_group_name }}"
+      filter_name: "{{ filter_name12 }}"
+      state: absent
+    failed_when: no
+    when: ((database.stdout_lines[2]|from_json).lodgmetralafornetworkgatway4_12actual.lodgmetralafornetworkgatway) == ""
+    tags:
+      - lodgmetralafornetworkgatway
+      - '4.12'
+      - rollbackfour
+      - all
+
+  - name: Rollback 4.12 - lodgmetralafornetworkgatway
+    ec2_metric_alarm:
+      state: absent
+      region: "{{ region }}"
+      name: "{{ name12 }}"
+      metric: "{{ metric12 }}"
+      namespace: "{{ namespace }}"
+      statistic: "Minimum"
+      comparison: ">="
+      threshold: "{{ threshold }}"
+      period: "{{ period }}"
+      evaluation_periods: "{{ evaluation_periods }}"
+      unit: "Count"
+      alarm_actions: "{{ alarm_actions }}"
+    failed_when: no
+    when: ((database.stdout_lines[2]|from_json).lodgmetralafornetworkgatway4_12actual.lodgmetralafornetworkgatway) == ""
+    tags:
+      - lodgmetralafornetworkgatway
+      - '4.12'
+      - rollbackfour
+      - all
+
+  - name: Rollback 4.12 - lodgmetralafornetworkgatway
+    sns_topic:
+      name: "{{ name }}"
+      state: absent
+      display_name: "SNS topic"
+      subscriptions:
+        - endpoint: "{{ endpoint }}"
+          protocol: "{{ protocol }}"
+    failed_when: no
+    when: ((database.stdout_lines[2]|from_json).lodgmetralafornetworkgatway4_12actual.lodgmetralafornetworkgatway) == ""
+    tags:
+      - lodgmetralafornetworkgatway
+      - '4.12'
+      - rollbackfour
+      - all
+
+  - name: Rollback 4.13 - lodgmetralaforrouttabchang
+    shell: echo "{{ (database.stdout_lines[2]|from_json).lodgmetralaforrouttabchang4_13actual.lodgmetralaforrouttabchang }}"
+    register: lodgmetralaforrouttabchang
+    tags:
+      - lodgmetralaforrouttabchang
+      - '4.13'
+      - rollbackfour
+      - all
+
+  - name: Rollback 4.13 - lodgmetralaforrouttabchang
+    community.aws.cloudwatchlogs_log_group_metric_filter:
+      log_group_name: "{{ log_group_name }}"
+      filter_name: "{{ filter_name13 }}"
+      state: absent
+    failed_when: no
+    when: ((database.stdout_lines[2]|from_json).lodgmetralaforrouttabchang4_13actual.lodgmetralaforrouttabchang) == ""
+    tags:
+      - lodgmetralaforrouttabchang
+      - '4.13'
+      - rollbackfour
+      - all
+
+  - name: Rollback 4.13 - lodgmetralaforrouttabchang
+    ec2_metric_alarm:
+      state: absent
+      region: "{{ region }}"
+      name: "{{ name13 }}"
+      metric: "{{ metric13 }}"
+      namespace: "{{ namespace }}"
+      statistic: "Minimum"
+      comparison: ">="
+      threshold: "{{ threshold }}"
+      period: "{{ period }}"
+      evaluation_periods: "{{ evaluation_periods }}"
+      unit: "Count"
+      alarm_actions: "{{ alarm_actions }}"
+    failed_when: no
+    when: ((database.stdout_lines[2]|from_json).lodgmetralaforrouttabchang4_13actual.lodgmetralaforrouttabchang) == ""
+    tags:
+      - lodgmetralaforrouttabchang
+      - '4.13'
+      - rollbackfour
+      - all
+
+  - name: Rollback 4.13 - lodgmetralaforrouttabchang
+    sns_topic:
+      name: "{{ name }}"
+      state: absent
+      display_name: "SNS topic"
+      subscriptions:
+        - endpoint: "{{ endpoint }}"
+          protocol: "{{ protocol }}"
+    failed_when: no
+    when: ((database.stdout_lines[2]|from_json).lodgmetralaforrouttabchang4_13actual.lodgmetralaforrouttabchang) == ""
+    tags:
+      - lodgmetralaforrouttabchang
+      - '4.13'
+      - rollbackfour
+      - all
+
+  - name: Rollback 4.14 - lodgmetralaforvpcchang
+    shell: echo "{{ (database.stdout_lines[2]|from_json).lodgmetralaforvpcchang4_14actual.lodgmetralaforvpcchang }}"
+    register: lodgmetralaforvpcchang
+    tags:
+      - lodgmetralaforvpcchang
+      - '4.14'
+      - rollbackfour
+      - all
+
+  - name: Rollback 4.14 - lodgmetralaforvpcchang
+    community.aws.cloudwatchlogs_log_group_metric_filter:
+      log_group_name: "{{ log_group_name }}"
+      filter_name: "{{ filter_name14 }}"
+      state: absent
+    failed_when: no
+    when: ((database.stdout_lines[2]|from_json).lodgmetralaforvpcchang4_14actual.lodgmetralaforvpcchang) == ""
+    tags:
+      - lodgmetralaforvpcchang
+      - '4.14'
+      - rollbackfour
+      - all
+
+  - name: Rollback 4.14 - lodgmetralaforvpcchang
+    ec2_metric_alarm:
+      state: absent
+      region: "{{ region }}"
+      name: "{{ name14 }}"
+      metric: "{{ metric14 }}"
+      namespace: "{{ namespace }}"
+      statistic: "Minimum"
+      comparison: ">="
+      threshold: "{{ threshold }}"
+      period: "{{ period }}"
+      evaluation_periods: "{{ evaluation_periods }}"
+      unit: "Count"
+      alarm_actions: "{{ alarm_actions }}"
+    failed_when: no
+    when: ((database.stdout_lines[2]|from_json).lodgmetralaforvpcchang4_14actual.lodgmetralaforvpcchang) == ""
+    tags:
+      - lodgmetralaforvpcchang
+      - '4.14'
+      - rollbackfour
+      - all
+
+  - name: Rollback 4.14 - lodgmetralaforvpcchang
+    sns_topic:
+      name: "{{ name }}"
+      state: absent
+      display_name: "SNS topic"
+      subscriptions:
+        - endpoint: "{{ endpoint }}"
+          protocol: "{{ protocol }}"
+    failed_when: no
+    when: ((database.stdout_lines[2]|from_json).lodgmetralaforvpcchang4_14actual.lodgmetralaforvpcchang) == ""
+    tags:
+      - lodgmetralaforvpcchang
+      - '4.14'
+      - rollbackfour
+      - all
+
+  - name: Rollback 4.15 - lodgmetralaforawsorgchang
+    shell: echo "{{ (database.stdout_lines[2]|from_json).lodgmetralaforawsorgchang4_15actual.lodgmetralaforawsorgchang }}"
+    register: lodgmetralaforawsorgchang
+    tags:
+      - lodgmetralaforawsorgchang
+      - '4.15'
+      - rollbackfour
+      - all
+
+  - name: Rollback 4.15 - lodgmetralaforawsorgchang
+    community.aws.cloudwatchlogs_log_group_metric_filter:
+      log_group_name: "{{ log_group_name }}"
+      filter_name: "{{ filter_name15 }}"
+      state: absent
+    failed_when: no
+    when: ((database.stdout_lines[2]|from_json).lodgmetralaforawsorgchang4_15actual.lodgmetralaforawsorgchang) == ""
+    tags:
+      - lodgmetralaforawsorgchang
+      - '4.15'
+      - rollbackfour
+      - all
+
+  - name: Rollback 4.15 - lodgmetralaforawsorgchang
+    ec2_metric_alarm:
+      state: absent
+      region: "{{ region }}"
+      name: "{{ name15 }}"
+      metric: "{{ metric15 }}"
+      namespace: "{{ namespace }}"
+      statistic: "Minimum"
+      comparison: ">="
+      threshold: "{{ threshold }}"
+      period: "{{ period }}"
+      evaluation_periods: "{{ evaluation_periods }}"
+      unit: "Count"
+      alarm_actions: "{{ alarm_actions }}"
+    failed_when: no
+    when: ((database.stdout_lines[2]|from_json).lodgmetralaforawsorgchang4_15actual.lodgmetralaforawsorgchang) == ""
+    tags:
+      - lodgmetralaforawsorgchang
+      - '4.15'
+      - rollbackfour
+      - all
+
+  - name: Rollback 4.15 - lodgmetralaforawsorgchang
+    sns_topic:
+      name: "{{ name }}"
+      state: absent
+      display_name: "SNS topic"
+      subscriptions:
+        - endpoint: "{{ endpoint }}"
+          protocol: "{{ protocol }}"
+    failed_when: no
+    when: ((database.stdout_lines[2]|from_json).lodgmetralaforawsorgchang4_15actual.lodgmetralaforawsorgchang) == ""
+    tags:
+      - lodgmetralaforawsorgchang
+      - '4.15'
+      - rollbackfour
+      - all
+
+  - name: Rollback 3.1 - ctenballreg
+    shell: echo "{{ (database.stdout_lines[2]|from_json).ctenballreg3_1actual.ctenballreg }}"
+    register: ctenballreg
+    tags:
+      - ctenballreg
+      - '3.1'
+      - rollbackthree
+      - all
+
+  - name: Rollback 3.1 - ctenballreg
+    cloudtrail:
+      state: present
+      name: "{{ item.name }}"
+      s3_bucket_name: "{{ item.s3_bucket_name }}"
+      region: "{{ item.region }}"
+      is_multi_region_trail: false
+    with_items:
+      - { name: "{{ Name3 }}", s3_bucket_name: "{{ S3BucketName1 }}", region: "{{ Region1 }}"}
+      - { name: "{{ Name1 }}", s3_bucket_name: "{{ S3BucketName2 }}", region: "{{ Region2 }}"}
+    when: ((database.stdout_lines[2]|from_json).ctenballreg3_1actual.ctenballreg) == ""
+    tags:
+      - ctenballreg
+      - '3.1'
+      - rollbackthree
+      - all
+  
+  - name: Rollback 3.2 - ctlogfvalid
+    shell: echo "{{ (database.stdout_lines[2]|from_json).ctlogfvalid3_2actual.ctlogfvalid }}"
+    register: ctlogfvalid
+    tags:
+      - ctlogfvalid
+      - '3.2'
+      - rollbackthree
+      - all
+
+  - name: 3.2 Ensure CloudTrail log file validation is enabled
+    cloudtrail:
+      state: present
+      name: "{{ item.name }}"
+      s3_bucket_name: "{{ item.s3_bucket_name }}"
+      region: "{{ item.region }}"
+      enable_log_file_validation: true
+    with_items:
+      - { name: "{{ Name3 }}", s3_bucket_name: "{{ S3BucketName3 }}", region: "{{ Region3 }}"}
+      - { name: "{{ Name4 }}", s3_bucket_name: "{{ S3BucketName4 }}", region: "{{ Region4 }}"}
+    when: ((database.stdout_lines[2]|from_json).ctlogfvalid3_2actual.ctlogfvalid) == ""
+    tags:
+      - ctlogfvalid
+      - '3.2'
+      - rollbackthree
+      - all
+
+  - name: Rollback 1.8 - minlength
+    shell: echo "{{ (database.stdout_lines[2]|from_json).minlength1_8actual.minlength }}"
+    register: minlength
+    tags:
+      - minlength
+      - '1.8'
+      - rollbackone
+      - all
+
+  - name: 1.8 Ensure IAM password policy requires minimum length of 14 or greater
+    iam_password_policy:
+      state: present
+      min_pw_length: "{{ Minlength1 }}"
+    when: ((database.stdout_lines[2]|from_json).minlength1_8actual.minlength) == ""
+    tags:
+      - minlength
+      - '1.8'
+      - rollbackone
+      - all
+
+  - name: Rollback 1.9 - passreuse
+    shell: echo "{{ (database.stdout_lines[2]|from_json).passreuse1_9actual.passreuse }}"
+    register: passreuse
+    tags:
+      - passreuse
+      - '1.9'
+      - rollbackone
+      - all
+
+  - name: Rollback 1.9 - passreuse
+    iam_password_policy:
+      state: present
+      pw_reuse_prevent: "{{ passreuse1 }}"
+    when: ((database.stdout_lines[2]|from_json).passreuse1_9actual.passreuse) == ""
+    tags:
+      - passreuse
+      - '1.9'
+      - rollbackone
+      - all 
+  
+  - name: Rollback 1.15 - IAMUsersPermissionGroups
+    shell: echo "{{ (database.stdout_lines[2]|from_json).IAMUsersPermissionGroups1_15actual.IAMUsersPermissionGroups }}"
+    register: IAMUsersPermissionGroups
+    tags:
+      - IAMUsersPermissionGroups
+      - '1.15'
+      - rollbackone
+      - all
+
+  - name: Delete the group
+    community.aws.iam_group:
+      name: "{{ name0 }}"
+      state: absent
+    when: ((database.stdout_lines[2]|from_json).IAMUsersPermissionGroups1_15actual.IAMUsersPermissionGroups) == ""
+    tags:
+      - IAMUsersPermissionGroups
+      - '1.15'
+      - rollbackone
+      - all
+
+  - name: Rollback 1.17 - awssupportaccess
+    shell: echo "{{ (database.stdout_lines[2]|from_json).awssupportaccess1_17actual.awssupportaccess }}"
+    register: awssupportaccess
+    tags:
+      - awssupportaccess
+      - '1.17'
+      - rollbackone
+      - all
+
+  - name: Rollback 1.17 - awssupportaccess
+    iam_role:
+      name: "{{ name_of_role }}"
+      state: absent
+      assume_role_policy_document: "{{ lookup('file', 'Trustpolicy.json') }}"
+    managed_policy:
+      - "{{ Policy_Arn }}"  
+    when: ((database.stdout_lines[2]|from_json).awssupportaccess1_17actual.awssupportaccess) == ""
+    tags:
+      - awssupportaccess
+      - '1.17'
+      - rollbackone
+      - all
+
+  - name: Rollback 1.21 - accessanalyzer
+    shell: echo "{{ (database.stdout_lines[2]|from_json).accessanalyzer_1_21_actual.accessanalyzer }}"
+    register: accessanalyzer
+    tags:
+      - accessanalyzer
+      - '1.21'
+      - rollbackone
+      - all
+
+  - name: Rollback 1.21 - accessanalyzer
+    shell: |
+      aws accessanalyzer delete-analyzer --analyzer-name "{{ AccessAnalyzerName }}" --type ACCOUNT
+    args:
+      executable: /bin/bash
+    when: ((database.stdout_lines[2]|from_json).accessanalyzer_1_21_actual.accessanalyzer) == ""
+    tags:
+      - accessanalyzer
+      - '1.21'
+      - rollbackone
+      - all
+
+  - name: Rollback 2.2.1 ebsencryp
+    shell: echo "{{ (database.stdout_lines[2]|from_json).ebsencryp_2_2_1actual.ebsencryp }}"
+    register: ebsencryp
+    tags:
+      - ebsencryp
+      - '2.2.1'
+      - rollbacktwo
+      - all
+  
+  - name: 2.2.1 Fetching regionnames
+    shell: |
+      aws ec2 describe-regions | jq '.Regions[].RegionName' | sed 's/"//g'
+    register: region_names
+    when: ((database.stdout_lines[2]|from_json).ebsencryp_2_2_1actual.ebsencryp) == ""
+    tags:
+      - ebsencryp
+      - '2.2.1'
+      - rollbacktwo
+      - all
+
+  - name: 2.2.1 Ensure EBS volume encryption is enabled
+    shell: |
+      aws --region "{{ item }}" ec2 disable-ebs-encryption-by-default
+    loop: "{{ region_names.stdout_lines }}"
+    when: ((database.stdout_lines[2]|from_json).ebsencryp_2_2_1actual.ebsencryp) == ""
+    tags:
+      - ebsencryp
+      - '2.2.1'
+      - rollbacktwo
+      - all
+
+  - name: Rollback 2.1.1 s3encryp
+    shell: echo "{{ (database.stdout_lines[2]|from_json).s3encryp_2_1_1actual.s3encryp }}"
+    register: s3encryp
+    tags:
+      - s3encryp
+      - '2.1.1'
+      - rollbacktwo
+      - all
+
+  - name: 2.1.1 Fetching the bucketname list
+    shell: aws s3api list-buckets | jq '.Buckets[].Name' | sed 's/"//g'
+    register: bucket_names
+    when: ((database.stdout_lines[2]|from_json).s3encryp_2_1_1actual.s3encryp) == ""
+    tags:
+      - s3encryp
+      - '2.1.1'
+      - rollbacktwo
+      - all
+  
+  - name: 2.1.1 Disable default encryption
+    shell: |
+      aws s3api delete-bucket-encryption --bucket "{{ item }}"
+    loop: "{{ bucket_names.stdout_lines }}"
+    when: ((database.stdout_lines[2]|from_json).s3encryp_2_1_1actual.s3encryp) == ""
+    tags:
+      - s3encryp
+      - '2.1.1'
+      - rollbacktwo
+      - all
+  
+  - name: Rollback cmkenable
+    shell: echo "{{ (database.stdout_lines[2]|from_json).cmkenable3_8actual.cmkenable }}"
+    register: cmkenable
+    tags:
+      - cmkenable
+      - '3.8'
+      - rollbackthree
+      - all
+    
+  - name: Fetching keyid
+    shell: |
+      aws kms list-keys | jq '.Keys[].KeyId' | sed 's/"//g'
+    register: key_id
+    when: ((database.stdout_lines[2]|from_json).cmkenable3_8actual.cmkenable) == ""
+    tags:
+      - cmkenable
+      - '3.8'
+      - rollbackthree
+      - all
+
+  - name: Ensure rotation for customer created CMKs is disabled
+    shell:  |
+      aws kms enable-key-rotation --key-id "{{ item }}"
+    loop: "{{ key_id.stdout_lines }}"
+    when: ((database.stdout_lines[2]|from_json).cmkenable3_8actual.cmkenable) == ""
+    tags:
+      - cmkenable
+      - '3.8'
+      - rollbackthree
+      - all
+
+  - name: Rollback ctlogencryp
+    shell: echo "{{ (database.stdout_lines[2]|from_json).ctlogencryp3_7actual.ctlogencryp }}"
+    register: ctlogencryp
+    tags:
+      - ctlogencryp
+      - '3.7'
+      - rollbackthree
+      - all
+  
+  - name: 3.7(b) Ensure CloudTrail logs are encrypted at rest using KMS CMKs
+    shell: |
+      for KMSKEYID in `aws kms list-keys | jq '.Keys[].KeyId' | sed 's/"//g'`;
+      do
+      for TrailName in `aws cloudtrail describe-trails | jq '.trailList[].Name' | sed 's/"//g'`;
+      do
+      aws kms put-key-policy --key-id $KMSKEYID --policy-name default --policy file://encrypt2.json
+      aws cloudtrail update-trail --name $TrailName --kms-key-id $KMSKEYID
+      done
+      done
+    args:
+      executable: /bin/bash
+    when: ((database.stdout_lines[2]|from_json).ctlogencryp3_7actual.ctlogencryp) == ""
+    tags:
+      - ctlogencryp
+      - '3.7'
+      - rollbackthree
+      - all 

@@ -1,0 +1,1787 @@
+---
+
+### Remedy ###
+
+- name: 1.4 Ensure no root user account access key exists
+  shell: echo "{{ ansible_local.rootaccacckeyexists1_4audit }}"
+  register: rootaccacckeyexists1_4audit
+  ignore_errors: True
+  tags:
+    - rootaccacckeyexists1_4audit
+    - '1.4'
+    - one
+    - all
+
+- name: 1.4 Ensure no root user account access key exists
+  shell: |
+    for AccessKey in `aws iam list-access-keys --user-name $UserName | jq '.AccessKeyMetadata[].AccessKeyId' | sed 's/"//g'`;
+    do
+    aws iam update-access-key --access-key-id $AccessKey --status Inactive
+    aws iam delete-access-key --access-key-id $AccessKey
+    done
+  args:
+    executable: /bin/bash
+  when: rootaccacckeyexists1_4audit.stdout.find("FAILED") != -1
+  tags:
+    -  rootaccacckeyexists1_4audit
+    - '1.4'
+    - one
+    - all
+
+- name:  1.7 Eliminate use of the root user for administrative and daily tasks
+  shell: echo "{{ ansible_local.rootusradmin1_7audit }}"
+  register: rootusradmin1_7audit
+  ignore_errors: True
+  tags:
+    - rootusradmin1_7audit
+    - '1.7'
+    - one
+    - all
+
+
+- name: 1.7 Eliminate use of the root user for administrative and daily tasks
+  shell: |
+    for AccessKey in `aws iam list-access-keys | jq '.AccessKeyMetadata[].AccessKeyId' | sed 's/"//g'`;
+    do
+    aws iam delete-access-key --access-key-id $AccessKey
+    done
+  args:
+    executable: /bin/bash
+  when: rootusradmin1_7audit.stdout.find("FAILED") != -1
+  tags:
+    - rootusradmin1_7audit
+    - '1.7'
+    - one
+    - all
+
+- name: 1.8 Ensure IAM password policy requires minimum length of 14 or greater
+  shell: echo "{{ ansible_local.minlength1_8audit }}"
+  register: minlength1_8audit
+  ignore_errors: True
+  tags:
+    - minlength1_8audit
+    - '1.8'
+    - one
+    - all
+
+- name: 1.8 Ensure IAM password policy requires minimum length of 14 or greater
+  iam_password_policy:
+    state: present
+    min_pw_length: "{{ Minlength }}"
+  when: minlength1_8audit.stdout.find("FAILED") != -1
+  tags:
+    - minlength1_8audit
+    - '1.8'
+    - one
+    - all
+
+- name: 1.9 Ensure IAM password policy prevents password reuse
+  shell: echo "{{ ansible_local.passreuse1_9audit }}"
+  register: passreuse1_9audit
+  ignore_errors: True
+  tags:
+    - passreuse1_9audit
+    - '1.9'
+    - one
+    - all
+
+- name: 1.9 Ensure IAM password policy prevents password reuse
+  iam_password_policy:
+    state: present
+    pw_reuse_prevent: "{{ passreuse }}"
+  when: passreuse1_9audit.stdout.find("FAILED") != -1
+  tags:
+    - passreuse1_9audit
+    - '1.9'
+    - one
+    - all
+
+- name:  1.11 Do not setup access keys during initial user setup for all IAM users that have a console password
+  shell: echo "{{ ansible_local.iamconsolepasswd1_11audit }}"
+  register: iamconsolepasswd1_11audit
+  ignore_errors: True
+  tags:
+    - iamconsolepasswd1_11audit
+    - '1.11'
+    - one
+    - all
+
+- name: 1.11 Do not setup access keys during initial user setup for all IAM users that have a console password
+  shell: |
+    for UserName in `aws iam list-users | jq '.Users[].UserName' | sed 's/"//g'`;
+    do
+    for AccessKey in `aws iam list-access-keys --user-name $UserName  | jq '.AccessKeyMetadata[].AccessKeyId' | sed 's/"//g'`;
+    do
+    aws iam delete-access-key --access-key-id $AccessKey --user-name $UserName
+    done
+    done
+  args:
+    executable: /bin/bash
+  when: iamconsolepasswd1_11audit.stdout.find("FAILED") != -1
+  tags:
+    - iamconsolepasswd1_11audit
+    - '1.11'
+    - one
+    - all
+
+- name: 1.13 Ensure there is only one active access key available for any single IAM user
+  shell: echo "{{ ansible_local.acckeyavailsinguser1_13audit }}"
+  register: acckeyavailsinguser1_13audit
+  ignore_errors: True
+  tags:
+    - acckeyavailsinguser1_13audit
+    - '1.13'
+    - one
+    - all
+
+- name: 1.13 Ensure there is only one active access key available for any single IAM user
+  shell: |
+    for AccessKey in `aws iam list-access-keys --user-name $UserName | jq '.AccessKeyMetadata[].AccessKeyId' | sed 's/"//g'`;
+    do
+    for UserName in `aws iam list-users | jq '.Users[].UserName' | sed 's/"//g'`;
+    do
+    aws iam update-access-key --access-key-id $AccessKey --status Inactive -user-name $UserName
+    done
+  args:
+    executable: /bin/bash
+  when: acckeyavailsinguser1_13audit.stdout.find("FAILED") != -1
+  tags:
+    - acckeyavailsinguser1_13audit
+    - '1.13'
+    - one
+    - all
+
+- name:  1.14 Ensure access keys are rotated every 90 days or less
+  shell: echo "{{ ansible_local.acckeyrotninetydays1_14audit }}"
+  register: acckeyrotninetydays1_14audit
+  ignore_errors: True
+  tags:
+    - acckeyrotninetydays1_14audit
+    - '1.14'
+    - one
+    - all
+
+- name: 1.14 Ensure access keys are rotated every 90 days or less
+  shell: |
+    for UserName in `aws iam list-users | jq '.Users[].UserName' | sed 's/"//g'`;
+    do
+    for AccessKey in `aws iam list-access-keys --user-name $UserName | jq '.AccessKeyMetadata[].AccessKeyId' | sed 's/"//g'`;
+    do
+    aws iam update-access-key --access-key-id $AccessKey --status Inactive --user-name $UserName
+    aws iam delete-access-key --access-key-id $AccessKey --user-name $UserName
+    aws iam create-access-key --user-name $UserName
+  args:
+    executable: /bin/bash
+  when: acckeyrotninetydays1_14audit.stdout.find("FAILED") != -1
+  tags:
+    - acckeyrotninetydays1_14audit
+    - '1.14'
+    - one
+    - all
+
+- name: 1.15 Ensure IAM Users Receive Permissions Only Through Groups
+  shell: echo "{{ ansible_local.IAMUsersPermissionGroups1_15audit }}"
+  register: IAMUsersPermissionGroups1_15audit
+  ignore_errors: True
+  tags:
+    - IAMUsersPermissionGroups1_15audit
+    - '1.15'
+    - one
+    - all
+
+- name: 1.15 Ensure IAM Users Receive Permissions Only Through Groups
+  shell: |
+    for UserName in `aws iam list-users | jq '.Users[].UserName' | sed 's/"//g'`;
+    do
+    for PolicyNames in `aws iam list-user-policies --user-name $UserName | jq '.PolicyNames[]' | sed 's/"//g'`;
+    do
+    for PolicyArn in `aws iam list-attached-user-policies --user-name $UserName | jq '.AttachedPolicies[].PolicyArn' | sed 's/"//g'`;
+    do
+    aws iam detach-user-policy --user-name $UserName --policy-arn $PolicyArn
+    aws iam delete-user-policy --user-name $UserName --policy-name $PolicyNames
+    done
+    done
+    done
+  args:
+    executable: /bin/bash
+- iam_group:
+    name: "{{ name0 }}"
+    managed_policy:
+      - "{{ managedpolicy1 }}"
+      - "{{ managedpolicy2 }}"
+    users:
+      - "{{ user }}"
+    state: present
+  when: IAMUsersPermissionGroups1_15audit.stdout.find("FAILED") != -1
+  tags:
+      - IAMUsersPermissionGroups1_15audit
+      - '1.15'
+      - one
+      - all
+
+- name: 1.16 Ensure IAM policies that allow full "*:*" administrative privileges are not attached
+  shell: echo "{{ ansible_local.fulladminpriv1_16audit }}"
+  register: fulladminpriv1_16audit
+  ignore_errors: True
+  tags:
+    - fulladminpriv1_16audit
+    - '1.16'
+    - one
+    - all
+
+- name: 1.16 Ensure IAM policies that allow full "*:*" administrative privileges are not attached
+  shell: |
+    for UserName in `aws iam list-users | jq '.Users[].UserName' | sed 's/"//g'`;
+    do
+    for PolicyArn in `aws iam list-attached-user-policies --user-name $UserName | jq '.AttachedPolicies[].PolicyArn' | sed 's/"//g'`;
+    do
+    for GroupName in `aws iam list-groups | jq '.Groups[].GroupName' | sed 's/"//g'`;
+    do
+    for RoleName in `aws iam list-roles | jq '.Roles[].RoleName' | sed 's/"//g'`;
+    do
+    aws iam list-entities-for-policy --policy-arn $PolicyArn
+    aws iam detach-user-policy --user-name $UserName --policy-arn $PolicyArn
+    aws iam detach-group-policy --group-name $GroupName --policy-arn $PolicyArn
+    aws iam detach-role-policy --role-name $RoleName --policy-arn $PolicyArn
+  args:
+    executable: /bin/bash
+  when: fulladminpriv1_16audit.stdout.find("FAILED") != -1
+  tags:
+    - fulladminpriv1_16audit
+    - '1.16'
+    - one
+    - all
+
+- name: 1.17(a) Ensure a support role has been created to manage incidents with AWS Support
+  shell: echo "{{ ansible_local.awssupportaccess1_17audit }}"
+  register: awssupportaccess1_17audit
+  ignore_errors: True
+  tags:
+    - awssupportaccess1_17audit
+    - '1.17'
+    - one
+    - all
+
+- name: 1.17(b) Ensure a support role has been created to manage incidents with AWS Support
+  iam_role:
+    name: "{{ name_of_role }}"
+    assume_role_policy_document: "{{ lookup('file', 'Trustpolicy.json') }}"
+    managed_policy:
+      - "{{ Policy_Arn }}"
+  when: awssupportaccess1_17audit.stdout.find("FAILED") != -1
+  tags:
+    - awssupportaccess1_17audit
+    - '1.17'
+    - one
+     - all
+
+- name: 1.20 Ensure that S3 Buckets are configured with Block public access
+  shell: echo "{{ ansible_local.s3blockpubaccess1_20audit }}"
+  register: s3blockpubaccess1_20audit
+  ignore_errors: True
+  tags:
+    - s3blockpubaccess1_20audit
+    - '1.20'
+    - one
+    - all
+
+- name: 1.20 Fetching bucketnames
+  shell: |
+    aws s3api list-buckets | jq '.Buckets[].Name' | sed 's/"//g'
+  register: bucket_name
+  when: s3blockpubaccess1_20audit.stdout.find("FAILED") != -1
+  tags:
+    - s3blockpubaccess1_20audit
+    - '1.20'
+    - one
+    - all
+
+- name: 1.20 Ensure that S3 Buckets are configured with Block public access
+  shell: |
+    aws s3api put-public-access-block --bucket {{ "item" }} --public-access-block-configuration "BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true"
+    aws s3control put-public-access-block --public-access-block-configuration "BlockPublicAcls=true, IgnorePublicAcls=true, BlockPublicPolicy=true, RestrictPublicBuckets=true" --account-id "{{ AccountNumber }}"
+  loop: "{{ bucket_name.stdout_lines }}"
+  when: s3blockpubaccess1_20audit.stdout.find("FAILED") != -1
+  tags:
+    - s3blockpubaccess1_20audit
+    - '1.20'
+    - one
+    - all
+
+- name: 1.21 Ensure that IAM Access analyzer is enabled
+  shell: echo "{{ ansible_local.accessanalyzer_1_21audit }}"
+  register: accessanalyzer_1_21audit
+  ignore_errors: True
+  tags:
+    - accessanalyzer_1_21audit
+    - '1.21'
+    - one
+    - all
+
+- name: 1.21 Ensure that IAM Access analyzer is enabled
+  shell: |
+    aws accessanalyzer create-analyzer --analyzer-name "{{ AccessAnalyzerName }}" --type ACCOUNT
+  args:
+    executable: /bin/bash
+  when: accessanalyzer_1_21audit.stdout.find("FAILED") != -1
+  tags:
+    - accessanalyzer_1_21audit
+    - '1.21'
+    - one
+    - all
+
+- name: 2.1.1 Ensure all S3 buckets employ encryption-at-rest
+  shell: echo "{{ ansible_local.s3encryp_2_1_1audit }}"
+  register: s3encryp_2_1_1audit
+  ignore_errors: True
+  tags:
+    - s3encryp_2_1_1audit
+    - '2.1.1'
+    - two
+    - all
+
+- name: 2.1.1 Fetching the bucketname list
+  shell: aws s3api list-buckets | jq '.Buckets[].Name' | sed 's/"//g'
+  register: bucket_names
+  when: s3encryp_2_1_1audit.stdout.find("FAILED") != -1
+  tags:
+    - s3encryp_2_1_1audit
+    - '2.1.1'
+    - two
+    - all
+
+- name: 2.1.1 Ensure all S3 buckets employ encryption-at-rest
+  shell: |
+    aws s3api put-bucket-encryption --bucket "{{ item }}" --server-side-encryption-configuration '{"Rules": [{"ApplyServerSideEncryptionByDefault": {"SSEAlgorithm": "AES256"}}]}'
+  with_items:
+    - "{{ bucket_names.stdout_lines }}"
+  when: s3encryp_2_1_1audit.stdout.find("FAILED") != -1
+  tags:
+    - s3encryp_2_1_1audit
+    - '2.1.1'
+    - two
+    - all
+
+- name:  2.1.2 Ensure S3 Bucket Policy allows HTTPS requests
+  shell: echo "{{ ansible_local.s3http_2_1_2audit }}"
+  register: s3http_2_1_2audit
+  ignore_errors: True
+  tags:
+    - s3http_2_1_2audit
+    - '2.1.2'
+    - two
+    - all
+
+- name: 2.1.2 Ensure S3 Bucket Policy allows HTTPS requests
+  shell: |
+    for BucketName in `aws s3api list-buckets | jq -r '.Buckets[].Name' | sed 's/"//g'`;
+    do
+    cat << EOF > policy.json
+    {
+       "Version": "2012-10-17",
+       "Id": "S3SecureTransportPolicy",
+       "Statement": [
+         {
+            "Sid": "ForceSSLOnlyAccess",
+            "Effect": "Deny",
+            "Principal": { "AWS": "*" },
+            "Action": "s3:*",
+            "Condition": {
+              "Bool": { "aws:SecureTransport": false }
+             },
+             "Resource":"arn:aws:s3:::${BucketName}/*"
+          }
+        ]
+    }
+    EOF
+    aws s3api put-bucket-policy --bucket $BucketName --policy file://policy.json
+    done
+  args:
+    executable: /bin/bash
+  when: s3http_2_1_2audit.stdout.find("FAILED") != -1
+  tags:
+      - s3http_2_1_2audit
+      - '2.1.2'
+      - two
+      - all
+
+- name: 2.2.1  Ensure EBS volume encryption is enabled
+  shell: echo "{{ ansible_local.ebsencryp_2_2_1audit }}"
+  register: ebsencryp_2_2_1audit
+  ignore_errors: True
+  tags:
+    - ebsencryp_2_2_1audit
+    - '2.2.1'
+    - three
+    - all
+
+- name: 2.2.1 Fetching regionnames
+  shell: |
+    aws ec2 describe-regions | jq '.Regions[].RegionName' | sed 's/"//g'
+  register: region_names
+  when: ebsencryp_2_2_1audit.stdout.find("FAILED") != -1
+  tags:
+    - ebsencryp_2_2_1audit
+    - '2.2.1'
+    - two
+    - all
+
+- name: 2.2.1 Ensure EBS volume encryption is enabled
+  shell: |
+    aws --region "{{ item }}" ec2 enable-ebs-encryption-by-default
+  loop: "{{ region_names.stdout_lines }}"
+  when: ebsencryp_2_2_1audit.stdout.find("FAILED") != -1
+  tags:
+    - ebsencryp_2_2_1audit
+    - '2.2.1'
+    - two
+    - all
+
+- name: 3.1 Ensure CloudTrail is enabled in all regions
+  shell: echo "{{ ansible_local.ctenballreg3_1audit }}"
+  register: ctenballreg3_1audit
+  ignore_errors: True
+  tags:
+    - ctenballreg3_1audit
+    - '3.1'
+    - three
+    - all
+
+- name: 3.1 Ensure CloudTrail is enabled in all regions
+  cloudtrail:
+    state: present
+    name: "{{ item.name }}"
+    s3_bucket_name: "{{ item.s3_bucket_name }}"
+    region: "{{ item.region }}"
+    is_multi_region_trail: true
+  with_items:
+    - { name: "{{ Name1 }}", s3_bucket_name: "{{ S3BucketName1 }}", region: "{{ Region1 }}"}
+    - { name: "{{ Name2 }}", s3_bucket_name: "{{ S3BucketName2 }}", region: "{{ Region2 }}"}
+  when: ctenballreg3_1audit.stdout.find("FAILED") != -1
+  tags:
+    - ctenballreg3_1audit
+    - '3.1'
+    - three
+    - all
+
+- name: 3.2 Ensure CloudTrail log file validation is enabled
+  shell: echo "{{ ansible_local.ctlogfvalid3_2audit }}"
+  register: ctlogfvalid3_2audit
+  ignore_errors: True
+  tags:
+    - ctlogfvalid3_2audit
+    - '3.2'
+    - three
+    - all
+
+- name: 3.2(b) Ensure CloudTrail log file validation is enabled
+  cloudtrail:
+    state: present
+    name: "{{ item.name }}"
+    s3_bucket_name: "{{ item.s3_bucket_name }}"
+    region: "{{ item.region }}"
+    enable_log_file_validation: true
+  with_items:
+    - { name: "{{ Name3 }}", s3_bucket_name: "{{ S3BucketName3 }}", region: "{{ Region3 }}"}
+    - { name: "{{ Name4 }}", s3_bucket_name: "{{ S3BucketName4 }}", region: "{{ Region4 }}"}
+  when: ctlogfvalid3_2audit.stdout.find("FAILED") != -1
+  tags:
+    - ctlogfvalid3_2audit
+    - '3.2'
+    - three
+    - all
+
+- name: 3.4 Ensure CloudTrail trails are integrated with CloudWatch Logs
+  shell: echo "{{ ansible_local.ctintegcwlogs3_4audit }}"
+  register: ctintegcwlogs3_4audit
+  ignore_errors: True
+  tags:
+    - ctintegcwlogs3_4audit
+    - '3.4'
+    - three
+    - all
+
+- name: 3.4 Ensure CloudTrail trails are integrated with CloudWatch Logs
+  cloudtrail:
+    state: present
+    name: "{{ item.name }}"
+    region: us-east-1
+    s3_bucket_name: "{{ item.s3_bucket_name }}"
+    cloudwatch_logs_role_arn: "{{ cloudwatch_logs_role_arn }}"
+    cloudwatch_logs_log_group_arn: "{{ cloudwatch_logs_log_group_arn }}"
+  loop:
+    - { name: "{{ Name5 }}", s3_bucket_name: "{{ S3BucketName5 }}" }
+    - { name: "{{ Name6 }}", s3_bucket_name: "{{ S3BucketName6 }}" }
+  when: ctintegcwlogs3_4audit.stdout.find("FAILED") != -1
+  tags:
+    - ctintegcwlogs3_4audit
+    - '3.4'
+    - three
+    - all
+
+- name: 3.5(a) Ensure AWS Config is enabled in all regions
+  shell: echo "{{ ansible_local.awsconfig_3_5audit }}"
+  register: awsconfig_3_5audit
+  ignore_errors: True
+  tags:
+    - awsconfig_3_5audit
+    - '3.5'
+    - three
+    - all
+
+- name: 3.5(b) Ensure AWS Config is enabled in all regions
+  shell: |
+    for BucketName in `aws s3api list-buckets | jq '.Buckets[].Name' | grep opszip | sed 's/"//g'`;
+    do
+    for SNSArn in `aws sns list-topics | jq '.Topics[].TopicArn' | grep arn:aws:sns:us-east-1:405042254276:cis-sns.fifo | sed 's/"//g'`;
+    do
+    for ConfigRole in `aws iam list-roles | jq '.Roles[].Arn' | grep arn:aws:iam::405042254276:role/aws-config-role | sed 's/"//g'`;
+    do
+    for Name in `aws configservice describe-configuration-recorder-status | jq '.ConfigurationRecordersStatus[].name' | sed 's/"//g'`;
+    do
+    aws configservice put-delivery-channel --delivery-channel file://deliverychannel.json
+    aws configservice subscribe --s3-bucket $BucketName --sns-topic $SNSArn --iam-role $ConfigRole
+    aws configservice start-configuration-recorder --configuration-recorder-name $Name
+    done
+    done
+    done
+    done
+  args:
+    executable: /bin/bash
+  when: awsconfig_3_5audit.stdout.find("FAILED") != -1
+  tags:
+    - awsconfig_3_5audit
+    - '3.5'
+    - three
+    - all
+
+- name: 3.6  Ensure S3 bucket access logging is enabled on the CloudTrail S3 bucket
+  shell: echo "{{ ansible_local.servicelogging3_6audit }}"
+  register: servicelogging3_6audit
+  ignore_errors: True
+  tags:
+    - servicelogging3_6audit
+    - '3.6'
+    - three
+    - all
+
+- name: 3.6  Ensure S3 bucket access logging is enabled on the CloudTrail S3 bucket
+  shell: |
+    for BucketName in `aws s3api list-buckets | jq '.Buckets[].Name' | sed 's/"//g'`;
+    do
+    aws s3api put-bucket-logging --bucket $BucketName --bucket-logging-status file://logging.json
+    done
+  args:
+    executable: /bin/bash
+  when: servicelogging3_6audit.stdout.find("FAILED") != -1
+  tags:
+    - servicelogging3_6audit
+    - '3.6'
+    - three
+    - all
+
+- name: 3.7(a) Ensure CloudTrail logs are encrypted at rest using KMS CMKs
+  shell: echo "{{ ansible_local.ctlogencryp3_7audit }}"
+  register: ctlogencryp3_7audit
+  ignore_errors: True
+  tags:
+    - ctlogencryp3_7audit
+    - '3.7'
+    - three
+    - all
+
+- name: 3.7(b) Ensure CloudTrail logs are encrypted at rest using KMS CMKs
+  shell: |
+    for KMSKEYID in `aws kms list-keys | jq '.Keys[].KeyId' | sed 's/"//g'`;
+    do
+    for TrailName in `aws cloudtrail describe-trails | jq '.trailList[].Name' | sed 's/"//g'`;
+    do
+    aws kms put-key-policy --key-id $KMSKEYID --policy-name default --policy file://encrypt2.json
+    aws cloudtrail update-trail --name $TrailName --kms-key-id $KMSKEYID
+    done
+    done
+  args:
+    executable: /bin/bash
+  when: ctlogencryp3_7audit.stdout.find("FAILED") != -1
+  tags:
+    - ctlogencryp3_7audit
+    - '3.7'
+    - three
+    - all
+
+- name: 3.8 Ensure rotation for customer created CMKs is enabled
+  shell: echo "{{ ansible_local.cmkenable3_8audit }}"
+  register: cmkenable3_8audit
+  ignore_errors: True
+  tags:
+    - cmkenable3_8audit
+    - '3.8'
+    - three
+    - all
+
+- name: 3.8 Fetching keyid
+  shell: |
+    aws kms list-keys | jq '.Keys[].KeyId' | sed 's/"//g'
+  register: key_id
+  when: cmkenable3_8audit.stdout.find("FAILED") != -1
+  tags:
+    - cmkenable3_8audit
+    - '3.8'
+    - three
+    - all
+
+- name: 3.8 Ensure rotation for customer created CMKs is enabled
+  shell:  |
+    aws kms enable-key-rotation --key-id "{{ item }}"
+  loop: "{{ key_id.stdout_lines }}"
+  when: cmkenable3_8audit.stdout.find("FAILED") != -1
+  tags:
+    - cmkenable3_8audit
+    - '3.8'
+    - three
+    - all
+
+- name: 3.9 Ensure VPC flow logging is enabled in all VPCs
+  shell: echo "{{ ansible_local.flowlog_3_9audit }}"
+  register: flowlog_3_9audit
+  ignore_errors: True
+  tags:
+    - flowlog_3_9audit
+    - '3.9'
+    - three
+    - all
+
+- name: 3.9 Fetching vpcid
+  shell: |
+    aws ec2 describe-vpcs | jq '.Vpcs[].VpcId' | sed 's/"//g'
+  register: vpc_id
+  when: flowlog_3_9audit.stdout.find("FAILED") != -1
+  tags:
+    - flowlog_3_9audit
+    - '3.9'
+    - three
+    - all
+
+- name: 3.9 Ensure VPC flow logging is enabled in all VPCs
+  shell: |
+    aws ec2 create-flow-logs --resource-type VPC --resource-ids "{{ item }}" --traffic-type ALL --log-destination-type s3 --log-destination "{{ Log_Destination }}" --log-format '${version} ${vpc-id} ${subnet-id} ${instance-id} ${srcaddr} ${dstaddr} ${srcport} ${dstport} ${protocol} ${tcp-flags} ${type} ${pkt-srcaddr} ${pkt-dstaddr}'
+  loop: "{{ vpc_id.stdout_lines }}"
+  when: flowlog_3_9audit.stdout.find("FAILED") != -1
+  tags:
+    - flowlog_3_9audit
+    - '3.9'
+    - three
+    - all
+
+- name: 3.10 Ensure that Object-level logging for write events is enabled for S3 bucket
+  shell: echo "{{ ansible_local.objlogwrite3_10audit }}"
+  register: objlogwrite3_10audit
+  ignore_errors: True
+  tags:
+    - objlogwrite3_10audit
+    - '3.10'
+    - three
+    - all
+
+- name: 3.10 Ensure that Object-level logging for write events is enabled for S3 bucket
+  shell: |
+    for TrailName in `aws cloudtrail describe-trails | jq '.trailList[].Name' | sed 's/"//g'`;
+    do
+    for BucketName in `aws cloudtrail describe-trails | jq -r '.trailList' | jq '.[] | select(.Name=="'$TrailName'")' | jq -r '.S3BucketName'`;
+    do
+    aws cloudtrail put-event-selectors --region us-east-1 --trail-name $TrailName --event-selectors '[{ "ReadWriteType": "WriteOnly", "IncludeManagementEvents":true, "DataResources": [{ "Type": "AWS::S3::Object", "Values": ["arn:aws:s3:::'$BucketName'/"] }] }]'
+    done
+    done
+  args:
+    executable: /bin/bash
+  when: objlogwrite3_10audit.stdout.find("FAILED") != -1
+  tags:
+      - objlogwrite3_10audit
+      - '3.10'
+      - three
+      - all
+
+- name: 3.11 Ensure that Object-level logging for read events is enabled for S3 bucket
+  shell: echo "{{ ansible_local.objlogread3_11audit }}"
+  register: objlogread3_11audit
+  ignore_errors: True
+  tags:
+    - objlogread3_11audit
+    - '3.11'
+    - three
+    - all
+
+- name: 3.11 Ensure that Object-level logging for read events is enabled for S3 bucket
+  shell: |
+    for TrailName in `aws cloudtrail describe-trails | jq '.trailList[].Name' | sed 's/"//g'`;
+    do
+    for BucketName in `aws cloudtrail describe-trails | jq -r '.trailList' | jq '.[] | select(.Name=="'$TrailName'")' | jq -r '.S3BucketName'`;
+    do
+    aws cloudtrail put-event-selectors --region us-east-1 --trail-name $TrailName --event-selectors '[{ "ReadWriteType": "ReadOnly", "IncludeManagementEvents":true, "DataResources": [{ "Type": "AWS::S3::Object", "Values": ["arn:aws:s3:::'$BucketName'/"] }] }]'
+    done
+    done
+  args:
+    executable: /bin/bash
+  when: objlogread3_11audit.stdout.find("FAILED") != -1
+  tags:
+    - objlogread3_11audit
+    - '3.11'
+    - three
+    - all
+
+- name: 4.1 - Ensure a log metric filter and alarm exist for unauthorized API calls
+  shell: echo "{{ ansible_local.lodgmetralaforunauthcalls4_1audit }}"
+  register: lodgmetralaforunauthcalls4_1audit
+  ignore_errors: True
+  tags:
+    - lodgmetralaforunauthcalls4_1audit
+    - '4.1'
+    - four
+    - all
+
+- name: 4.1 - Ensure a log metric filter and alarm exist for unauthorized API calls
+  community.aws.cloudwatchlogs_log_group_metric_filter:
+    log_group_name: "{{ log_group_name }}"
+    filter_name: "{{ filter_name1 }}"
+    filter_pattern: '{ ($.errorCode = "*UnauthorizedOperation") || ($.errorCode = "AccessDenied*") }'
+    state: present
+    metric_transformation:
+        metric_name: "{{ metric_name1 }}"
+        metric_namespace: "{{ metric_namespace }}"
+        metric_value: "{{ metric_value }}"
+  when: lodgmetralaforunauthcalls4_1audit.stdout.find("FAILED") != -1
+  tags:
+    - lodgmetralaforunauthcalls4_1audit
+    - '4.1'
+    - four
+    - all
+
+- name: 4.1 - Ensure a log metric filter and alarm exist for unauthorized API calls
+  sns_topic:
+    name: "{{ name  }}"
+    state: present
+    display_name: "SNS topic"
+    subscriptions:
+      - endpoint: "{{ endpoint }}"
+        protocol: "{{ protocol }}"
+  when: lodgmetralaforunauthcalls4_1audit.stdout.find("FAILED") != -1
+  tags:
+    - lodgmetralaforunauthcalls4_1audit
+    - '4.1'
+    - four
+    - all
+
+- name: 4.1 Ensure a log metric filter and alarm exist for unauthorized API calls
+  ec2_metric_alarm:
+    state: present
+    region: "{{ region }}"
+    name: "{{ name1 }}"
+    metric: "{{ metric1 }}"
+    namespace: "{{ namespace }}"
+    statistic: "Minimum"
+    comparison: ">="
+    threshold: "{{ threshold }}"
+    period: "{{ period }}"
+    evaluation_periods: "{{ evaluation_periods }}"
+    unit: "Count"
+    alarm_actions: "{{ alarm_actions }}"
+  when: lodgmetralaforunauthcalls4_1audit.stdout.find("FAILED") != -1
+  tags:
+    - lodgmetralaforunauthcalls4_1audit
+    - '4.1'
+    - four
+    - all
+
+- name: 4.2(a) Ensure a log metric filter and alarm exist for Management Console signin without MFA
+  shell: echo "{{ ansible_local.lodgmetralaformangconsigninmfa4_2audit }}"
+  register: lodgmetralaformangconsigninmfa4_2audit
+  ignore_errors: True
+  tags:
+    - lodgmetralaformangconsigninmfa4_2audit
+    - '4.2'
+    - four
+    - all
+
+- name: 4.2(b) Ensure a log metric filter and alarm exist for Management Console signin without MFA
+  community.aws.cloudwatchlogs_log_group_metric_filter:
+    log_group_name: "{{ log_group_name }}"
+    filter_name: "{{ filter_name2 }}"
+    filter_pattern: '{ ($.eventName = "ConsoleLogin") && ($.additionalEventData.MFAUsed != "No") }'
+    state: present
+    metric_transformation:
+        metric_name: "{{ metric_name2 }}"
+        metric_namespace: "{{ metric_namespace }}"
+        metric_value: "{{ metric_value }}"
+  when: lodgmetralaformangconsigninmfa4_2audit.stdout.find("FAILED") != -1
+  tags:
+    - lodgmetralaformangconsigninmfa4_2audit
+    - '4.2'
+    - four
+    - all
+
+- name: 4.2(c) Ensure a log metric filter and alarm exist for Management Console signin without MFA
+  sns_topic:
+    name: "{{ name }}"
+    state: present
+    display_name: "SNS topic"
+    subscriptions:
+      - endpoint: "{{ endpoint }}"
+        protocol: "{{ protocol }}"
+  when: lodgmetralaformangconsigninmfa4_2audit.stdout.find("FAILED") != -1
+  tags:
+    - lodgmetralaformangconsigninmfa4_2audit
+    - '4.2'
+    - four
+    - all
+
+- name: 4.2(d) Ensure a log metric filter and alarm exist for Management Console signin without MFA
+  ec2_metric_alarm:
+    state: present
+    region: "{{ region }}"
+    name: "{{ name2 }}"
+    metric: "{{ metric2 }}"
+    namespace: "{{ namespace }}"
+    statistic: "Minimum"
+    comparison: ">="
+    threshold: "{{ threshold }}"
+    period: "{{ period }}"
+    evaluation_periods: "{{ evaluation_periods }}"
+    unit: "Count"
+    alarm_actions: "{{ alarm_actions }}"
+  when: lodgmetralaformangconsigninmfa4_2audit.stdout.find("FAILED") != -1
+  tags:
+    - lodgmetralaformangconsigninmfa4_2audit
+    - '4.2'
+    - four
+    - all
+
+- name: 4.3 Ensure a log metric filter and alarm exist for usage of root account
+  shell: echo "{{ ansible_local.lodgmetralaforusageofrootacc4_3audit }}"
+  register: lodgmetralaforusageofrootacc4_3audit
+  ignore_errors: True
+  tags:
+    - lodgmetralaforusageofrootacc4_3audit
+    - '4.3'
+    - four
+    - all
+
+- name: 4.3 Ensure a log metric filter and alarm exist for usage of root account
+  community.aws.cloudwatchlogs_log_group_metric_filter:
+    log_group_name: "{{ log_group_name }}"
+    filter_name: "{{ filter_name3 }}"
+    filter_pattern: '{ ($.userIdentity.type = "Root" && $.userIdentity.invokedBy NOT EXISTS && $.eventType != "AwsServiceEvent") }'
+    state: present
+    metric_transformation:
+        metric_name: "{{ metric_name3 }}"
+        metric_namespace: "{{ metric_namespace }}"
+        metric_value: "{{ metric_value }}"
+  when: lodgmetralaforusageofrootacc4_3audit.stdout.find("FAILED") != -1
+  tags:
+    - lodgmetralaforusageofrootacc4_3audit
+    - '4.3'
+    - four
+    - all
+
+- name: 4.3 Ensure a log metric filter and alarm exist for usage of root account
+  sns_topic:
+    name: "{{ name }}"
+    state: present
+    display_name: "SNS topic"
+    subscriptions:
+      - endpoint: "{{ endpoint }}"
+        protocol: "{{ protocol }}"
+  when: lodgmetralaforusageofrootacc4_3audit.stdout.find("FAILED") != -1
+  tags:
+    - lodgmetralaforusageofrootacc4_3audit
+    - '4.3'
+    - four
+    - all
+
+- name: 4.3 Ensure a log metric filter and alarm exist for usage of root account
+  ec2_metric_alarm:
+    state: present
+    region: "{{ region }}"
+    name: "{{ name3 }}"
+    metric: "{{ metric3 }}"
+    namespace: "{{ namespace }}"
+    statistic: "Minimum"
+    comparison: ">="
+    threshold: "{{ threshold }}"
+    period: "{{ period }}"
+    evaluation_periods: "{{ evaluation_periods }}"
+    unit: "Count"
+    alarm_actions: "{{ alarm_actions }}"
+  when: lodgmetralaforusageofrootacc4_3audit.stdout.find("FAILED") != -1
+  tags:
+    - lodgmetralaforusageofrootacc4_3audit
+    - '4.3'
+    - four
+    - all
+
+- name: 4.4 Ensure a log metric filter and alarm exist for IAM policy changes
+  shell: echo "{{ ansible_local.lodgmetralaforIAMpolchanges4_4audit }}"
+  register: lodgmetralaforIAMpolchanges4_4audit
+  ignore_errors: True
+  tags:
+    - lodgmetralaforIAMpolchanges4_4audit
+    - '4.4'
+    - four
+    - all
+
+- name: 4.4 Ensure a log metric filter and alarm exist for IAM policy changes
+  community.aws.cloudwatchlogs_log_group_metric_filter:
+    log_group_name: "{{ log_group_name }}"
+    filter_name: "{{ filter_name4 }}"
+    filter_pattern: '{($.eventName=DeleteGroupPolicy)||($.eventName=DeleteRolePolicy)||($.eventName=DeleteUserPolicy)||($.eventName=PutGroupPolicy)||($.eventName=PutRolePolicy)||($.eventName=PutUserPolicy)||($.eventName=CreatePolicy)||($.eventName=DeletePolicy)||($.eventName=CreatePolicyVersion)||($.eventName=DeletePolicyVersion)||($.eventName=AttachRolePolicy)||($.eventName=DetachRolePolicy)||($.eventName=AttachUserPolicy)||($.eventName=DetachUserPolicy)||($.eventName=AttachGroupPolicy)||($.eventName=DetachGroupPolicy)}'
+    state: present
+    metric_transformation:
+        metric_name: "{{ metric_name4 }}"
+        metric_namespace: "{{ metric_namespace }}"
+        metric_value: "{{ metric_value }}"
+  when: lodgmetralaforIAMpolchanges4_4audit.stdout.find("FAILED") != -1
+  tags:
+    - lodgmetralaforIAMpolchanges4_4audit
+    - '4.4'
+    - four
+    - all
+
+- name: 4.4 Ensure a log metric filter and alarm exist for IAM policy changes
+  sns_topic:
+    name: "{{ name }}"
+    state: present
+    display_name: "SNS topic"
+    subscriptions:
+      - endpoint: "{{ endpoint }}"
+        protocol: "{{ protocol }}"
+  when: lodgmetralaforIAMpolchanges4_4audit.stdout.find("FAILED") != -1
+  tags:
+    - lodgmetralaforIAMpolchanges4_4audit
+    - '4.4'
+    - four
+    - all
+
+- name: 4.4 Ensure a log metric filter and alarm exist for IAM policy changes
+  ec2_metric_alarm:
+    state: present
+    region: "{{ region }}"
+    name: "{{ name4 }}"
+    metric: "{{ metric4 }}"
+    namespace: "{{ namespace }}"
+    statistic: "Minimum"
+    comparison: ">="
+    threshold: "{{ threshold }}"
+    period: "{{ period }}"
+    evaluation_periods: "{{ evaluation_periods }}"
+    unit: "Count"
+    alarm_actions: "{{ alarm_actions }}"
+  when: lodgmetralaforIAMpolchanges4_4audit.stdout.find("FAILED") != -1
+  tags:
+    - lodgmetralaforIAMpolchanges4_4audit
+    - '4.4'
+    - four
+    - all
+
+- name: 4.5 Ensure a log metric filter and alarm exist for CloudTrail configuration changes
+  shell: echo "{{ ansible_local.lodgmetralaforCTconfigchanges_4_5audit }}"
+  register: lodgmetralaforCTconfigchanges_4_5audit
+  ignore_errors: True
+  tags:
+    - lodgmetralaforCTconfigchanges_4_5audit
+    - '4.5'
+    - four
+    - all
+
+- name: 4.5 Ensure a log metric filter and alarm exist for CloudTrail configuration changes
+  community.aws.cloudwatchlogs_log_group_metric_filter:
+    log_group_name: "{{ log_group_name }}"
+    filter_name: "{{ filter_name5 }}"
+    filter_pattern: '{ ($.eventName = CreateTrail) || ($.eventName = UpdateTrail) || ($.eventName = DeleteTrail) || ($.eventName = StartLogging) || ($.eventName = StopLogging) }'
+    state: present
+    metric_transformation:
+        metric_name: "{{ metric_name5 }}"
+        metric_namespace: "{{ metric_namespace }}"
+        metric_value: "{{ metric_value }}"
+  when: lodgmetralaforCTconfigchanges_4_5audit.stdout.find("FAILED") != -1
+  tags:
+    - lodgmetralaforCTconfigchanges_4_5audit
+    - '4.5'
+    - four
+    - all
+
+- name: 4.5 Ensure a log metric filter and alarm exist for CloudTrail configuration changes
+  sns_topic:
+    name: "{{ name }}"
+    state: present
+    display_name: "SNS topic"
+    subscriptions:
+      - endpoint: "{{ endpoint }}"
+        protocol: "{{ protocol }}"
+  when: lodgmetralaforCTconfigchanges_4_5audit.stdout.find("FAILED") != -1
+  tags:
+    - lodgmetralaforCTconfigchanges_4_5audit
+    - '4.5'
+    - four
+    - all
+
+- name: 4.5 Ensure a log metric filter and alarm exist for CloudTrail configuration changes
+  ec2_metric_alarm:
+    state: present
+    region: "{{ region }}"
+    name: "{{ name5 }}"
+    metric: "{{ metric5 }}"
+    namespace: "{{ namespace }}"
+    statistic: "Minimum"
+    comparison: ">="
+    threshold: "{{ threshold }}"
+    period: "{{ period }}"
+    evaluation_periods: "{{ evaluation_periods }}"
+    unit: "Count"
+    alarm_actions: "{{ alarm_actions }}"
+  when: lodgmetralaforCTconfigchanges_4_5audit.stdout.find("FAILED") != -1
+  tags:
+    - lodgmetralaforCTconfigchanges_4_5audit
+    - '4.5'
+    - four
+    - all
+
+- name: 4.6 Ensure a log metric filter and alarm exist for AWS Management Console authentication failures
+  shell: echo "{{ ansible_local.lodgmetralaforawsmangconsauthfail_4_6audit }}"
+  register: lodgmetralaforawsmangconsauthfail_4_6audit
+  ignore_errors: True
+  tags:
+    - lodgmetralaforawsmangconsauthfail_4_6audit
+    - '4.6'
+    - four
+    - all
+
+- name: 4.6 Ensure a log metric filter and alarm exist for AWS Management Console authentication failures
+  community.aws.cloudwatchlogs_log_group_metric_filter:
+    log_group_name: "{{ log_group_name }}"
+    filter_name: "{{ filter_name6 }}"
+    filter_pattern: '{ ($.eventName = ConsoleLogin) && ($.errorMessage = "Failed authentication") }'
+    state: present
+    metric_transformation:
+        metric_name: "{{ metric_name6 }}"
+        metric_namespace: "{{ metric_namespace }}"
+        metric_value: "{{ metric_value }}"
+  when: lodgmetralaforawsmangconsauthfail_4_6audit.stdout.find("FAILED") != -1
+  tags:
+    - lodgmetralaforawsmangconsauthfail_4_6audit
+    - '4.6'
+    - four
+    - all
+
+- name: 4.6 Ensure a log metric filter and alarm exist for AWS Management Console authentication failures
+  sns_topic:
+    name: "{{ name }}"
+    state: present
+    display_name: "SNS topic"
+    subscriptions:
+      - endpoint: "{{ endpoint }}"
+        protocol: "{{ protocol }}"
+  when: lodgmetralaforawsmangconsauthfail_4_6audit.stdout.find("FAILED") != -1
+  tags:
+    - lodgmetralaforawsmangconsauthfail_4_6audit
+    - '4.6'
+    - four
+    - all
+
+- name: 4.6 Ensure a log metric filter and alarm exist for AWS Management Console authentication failures
+  ec2_metric_alarm:
+    state: present
+    region: "{{ region }}"
+    name: "{{ name6 }}"
+    metric: "{{ metric6 }}"
+    namespace: "{{ namespace }}"
+    statistic: "Minimum"
+    comparison: ">="
+    threshold: "{{ threshold }}"
+    period: "{{ period }}"
+    evaluation_periods: "{{ evaluation_periods }}"
+    unit: "Count"
+    alarm_actions: "{{ alarm_actions }}"
+  when: lodgmetralaforawsmangconsauthfail_4_6audit.stdout.find("FAILED") != -1
+  tags:
+    - lodgmetralaforawsmangconsauthfail_4_6audit
+    - '4.6'
+    - four
+    - all
+
+- name: 4.7 Ensure a log metric filter and alarm exist for disabling or scheduled deletion of customer created CMKs
+  shell: echo "{{ ansible_local.lodgmetralafordelofCMK_4_7audit }}"
+  register: lodgmetralafordelofCMK_4_7audit
+  ignore_errors: True
+  tags:
+    - lodgmetralafordelofCMK_4_7audit
+    - '4.7'
+    - four
+    - all
+
+- name: 4.7 Ensure a log metric filter and alarm exist for disabling or scheduled deletion of customer created CMKs
+  community.aws.cloudwatchlogs_log_group_metric_filter:
+    log_group_name: "{{ log_group_name }}"
+    filter_name: "{{ filter_name7 }}"
+    filter_pattern: '{($.eventSource = kms.amazonaws.com) && (($.eventName=DisableKey)||($.eventName=ScheduleKeyDeletion))}'
+    state: present
+    metric_transformation:
+        metric_name: "{{ metric_name7 }}"
+        metric_namespace: "{{ metric_namespace }}"
+        metric_value: "{{ metric_value }}"
+  when: lodgmetralafordelofCMK_4_7audit.stdout.find("FAILED") != -1
+  tags:
+      - lodgmetralafordelofCMK_4_7audit
+      - '4.7'
+      - four
+      - all
+
+- name: 4.7 Ensure a log metric filter and alarm exist for disabling or scheduled deletion of customer created CMKs
+  sns_topic:
+    name: "{{ name }}"
+    state: present
+    display_name: "SNS topic"
+    subscriptions:
+      - endpoint: "{{ endpoint }}"
+        protocol: "{{ protocol }}"
+  when: lodgmetralafordelofCMK_4_7audit.stdout.find("FAILED") != -1
+  tags:
+    - lodgmetralafordelofCMK_4_7audit
+    - '4.7'
+    - four
+    - all
+
+- name: 4.7 Ensure a log metric filter and alarm exist for disabling or scheduled deletion of customer created CMKs
+  ec2_metric_alarm:
+    state: present
+    region: "{{ region }}"
+    name: "{{ name7 }}"
+    metric: "{{ metric7 }}"
+    namespace: "{{ namespace }}"
+    statistic: "Minimum"
+    comparison: ">="
+    threshold: "{{ threshold }}"
+    period: "{{ period }}"
+    evaluation_periods: "{{ evaluation_periods }}"
+    unit: "Count"
+    alarm_actions: "{{ alarm_actions }}"
+  when: lodgmetralafordelofCMK_4_7audit.stdout.find("FAILED") != -1
+  tags:
+    - lodgmetralafordelofCMK_4_7audit
+    - '4.7'
+    - four
+    - all
+
+- name: 4.8 Ensure a log metric filter and alarm exist for S3 bucket policy changes
+  shell: echo "{{ ansible_local.lodgmetralafors3buckpolchanges4_8audit }}"
+  register: lodgmetralafors3buckpolchanges4_8audit
+  ignore_errors: True
+  tags:
+    - lodgmetralafors3buckpolchanges4_8audit
+    - '4.8'
+    - four
+    - all
+
+- name: 4.8 Ensure a log metric filter and alarm exist for S3 bucket policy changes
+  community.aws.cloudwatchlogs_log_group_metric_filter:
+    log_group_name: "{{ log_group_name }}"
+    filter_name: "{{ filter_name8 }}"
+    filter_pattern: '{ ($.eventSource = s3.amazonaws.com) && (($.eventName = PutBucketAcl) || ($.eventName = PutBucketPolicy) || ($.eventName = PutBucketCors) || ($.eventName = PutBucketLifecycle) || ($.eventName = PutBucketReplication) || ($.eventName = DeleteBucketPolicy) || ($.eventName = DeleteBucketCors) || ($.eventName = DeleteBucketLifecycle) || ($.eventName = DeleteBucketReplication)) }'
+    state: present
+    metric_transformation:
+        metric_name: "{{ metric_name8 }}"
+        metric_namespace: "{{ metric_namespace }}"
+        metric_value: "{{ metric_value }}"
+  when: lodgmetralafors3buckpolchanges4_8audit.stdout.find("FAILED") != -1
+  tags:
+    - lodgmetralafors3buckpolchanges4_8audit
+    - '4.8'
+    - four
+    - all
+
+- name: 4.8 Ensure a log metric filter and alarm exist for S3 bucket policy changes
+  sns_topic:
+    name: "{{ name }}"
+    state: present
+    display_name: "SNS topic"
+    subscriptions:
+      - endpoint: "{{ endpoint }}"
+        protocol: "{{ protocol }}"
+  when: lodgmetralafors3buckpolchanges4_8audit.stdout.find("FAILED") != -1
+  tags:
+    - lodgmetralafors3buckpolchanges4_8audit
+    - '4.8'
+    - four
+    - all
+
+- name: 4.8 Ensure a log metric filter and alarm exist for S3 bucket policy changes
+  ec2_metric_alarm:
+    state: present
+    region: "{{ region }}"
+    name: "{{ name8 }}"
+    metric: "{{ metric8 }}"
+    namespace: "{{ namespace }}"
+    statistic: "Minimum"
+    comparison: ">="
+    threshold: "{{ threshold }}"
+    period: "{{ period }}"
+    evaluation_periods: "{{ evaluation_periods }}"
+    unit: "Count"
+    alarm_actions: "{{ alarm_actions }}"
+  when: lodgmetralafors3buckpolchanges4_8audit.stdout.find("FAILED") != -1
+  tags:
+    - lodgmetralafors3buckpolchanges4_8audit
+    - '4.8'
+    - four
+    - all
+
+- name: 4.9 Ensure a log metric filter and alarm exist for AWS Config configuration changes
+  shell: echo "{{ ansible_local.lodgmetralaforawsconfigchanges_4_9audit }}"
+  register: lodgmetralaforawsconfigchanges_4_9audit
+  ignore_errors: True
+  tags:
+    - lodgmetralaforawsconfigchanges_4_9audit
+    - '4.9'
+    - four
+    - all
+
+- name: 4.9 Ensure a log metric filter and alarm exist for AWS Config configuration changes
+  community.aws.cloudwatchlogs_log_group_metric_filter:
+    log_group_name: "{{ log_group_name }}"
+    filter_name: "{{ filter_name9 }}"
+    filter_pattern: '{ ($.eventSource = config.amazonaws.com) && (($.eventName=StopConfigurationRecorder)||($.eventName=DeleteDeliveryChannel) ||($.eventName=PutDeliveryChannel)||($.eventName=PutConfigurationRecorder)) }'
+    state: present
+    metric_transformation:
+        metric_name: "{{ metric_name9 }}"
+        metric_namespace: "{{ metric_namespace }}"
+        metric_value: "{{ metric_value }}"
+  when: lodgmetralaforawsconfigchanges_4_9audit.stdout.find("FAILED") != -1
+  tags:
+    - lodgmetralaforawsconfigchanges_4_9audit
+    - '4.9'
+    - four
+    - all
+
+- name: 4.9 Ensure a log metric filter and alarm exist for AWS Config configuration changes
+  sns_topic:
+    name: "{{ name }}"
+    state: present
+    display_name: "SNS topic"
+    subscriptions:
+      - endpoint: "{{ endpoint }}"
+        protocol: "{{ protocol }}"
+  when: lodgmetralaforawsconfigchanges_4_9audit.stdout.find("FAILED") != -1
+  tags:
+    - lodgmetralaforawsconfigchanges_4_9audit
+    - '4.9'
+    - four
+    - all
+
+- name: 4.9 Ensure a log metric filter and alarm exist for AWS Config configuration changes
+  ec2_metric_alarm:
+    state: present
+    region: "{{ region }}"
+    name: "{{ name9 }}"
+    metric: "{{ metric9 }}"
+    namespace: "{{ namespace }}"
+    statistic: "Minimum"
+    comparison: ">="
+    threshold: "{{ threshold }}"
+    period: "{{ period }}"
+    evaluation_periods: "{{ evaluation_periods }}"
+    unit: "Count"
+    alarm_actions: "{{ alarm_actions }}"
+  when: lodgmetralaforawsconfigchanges_4_9audit.stdout.find("FAILED") != -1
+  tags:
+    - lodgmetralaforawsconfigchanges_4_9audit
+    - '4.9'
+    - four
+    - all
+
+- name: 4.10 Ensure a log metric filter and alarm exist for security group changes
+  shell: echo "{{ ansible_local.lodgmetralaforsecgrpchanges4_10audit }}"
+  register: lodgmetralaforsecgrpchanges4_10audit
+  ignore_errors: True
+  tags:
+    - lodgmetralaforsecgrpchanges4_10audit
+    - '4.10'
+    - four
+    - all
+
+- name: 4.10 Ensure a log metric filter and alarm exist for security group changes
+  community.aws.cloudwatchlogs_log_group_metric_filter:
+    log_group_name: "{{ log_group_name }}"
+    filter_name: "{{ filter_name10 }}"
+    filter_pattern:  '{ ($.eventName = AuthorizeSecurityGroupIngress) || ($.eventName = AuthorizeSecurityGroupEgress) || ($.eventName = RevokeSecurityGroupIngress) || ($.eventName = RevokeSecurityGroupEgress) || ($.eventName = CreateSecurityGroup) || ($.eventName = DeleteSecurityGroup) }'
+    state: present
+    metric_transformation:
+        metric_name: "{{ metric_name10 }}"
+        metric_namespace: "{{ metric_namespace }}"
+        metric_value: "{{ metric_value }}"
+  when: lodgmetralaforsecgrpchanges4_10audit.stdout.find("FAILED") != -1
+  tags:
+    - lodgmetralaforsecgrpchanges4_10audit
+    - '4.10'
+    - four
+    - all
+
+- name: 4.10 Ensure a log metric filter and alarm exist for security group changes
+  sns_topic:
+    name: "{{ name }}"
+    state: present
+    display_name: "SNS topic"
+    subscriptions:
+      - endpoint: "{{ endpoint }}"
+        protocol: "{{ protocol }}"
+  when: lodgmetralaforsecgrpchanges4_10audit.stdout.find("FAILED") != -1
+  tags:
+    - lodgmetralaforsecgrpchanges4_10audit
+    - '4.10'
+    - four
+    - all
+
+- name: 4.10 Ensure a log metric filter and alarm exist for security group changes
+  ec2_metric_alarm:
+    state: present
+    region: "{{ region }}"
+    name: "{{ name10 }}"
+    metric: "{{ metric10 }}"
+    namespace: "{{ namespace }}"
+    statistic: "Minimum"
+    comparison: ">="
+    threshold: "{{ threshold }}"
+    period: "{{ period }}"
+    evaluation_periods: "{{ evaluation_periods }}"
+    unit: "Count"
+    alarm_actions: "{{ alarm_actions }}"
+  when: lodgmetralaforsecgrpchanges4_10audit.stdout.find("FAILED") != -1
+  tags:
+    - lodgmetralaforsecgrpchanges4_10audit
+    - '4.10'
+    - four
+    - all
+
+- name: 4.11 Ensure a log metric filter and alarm exist for changes to Network Access Control Lists
+  shell: echo "{{ ansible_local.lodgmetralaforNACL4_11audit }}"
+  register: lodgmetralaforNACL4_11audit
+  ignore_errors: True
+  tags:
+    - lodgmetralaforNACL4_11audit
+    - '4.11'
+    - four
+    - all
+
+- name: 4.11 Ensure a log metric filter and alarm exist for changes to Network Access Control Lists
+  community.aws.cloudwatchlogs_log_group_metric_filter:
+    log_group_name: "{{ log_group_name }}"
+    filter_name: "{{ filter_name11 }}"
+    filter_pattern: '{ ($.eventName = CreateNetworkAcl) || ($.eventName = CreateNetworkAclEntry) || ($.eventName = DeleteNetworkAcl) || ($.eventName = DeleteNetworkAclEntry) || ($.eventName = ReplaceNetworkAclEntry) || ($.eventName = ReplaceNetworkAclAssociation) }'
+    state: present
+    metric_transformation:
+        metric_name: "{{ metric_name11 }}"
+        metric_namespace: "{{ metric_namespace }}"
+        metric_value: "{{ metric_value }}"
+  when: lodgmetralaforNACL4_11audit.stdout.find("FAILED") != -1
+  tags:
+    - lodgmetralaforNACL4_11audit
+    - '4.11'
+    - four
+    - all
+
+- name: 4.11 Ensure a log metric filter and alarm exist for changes to Network Access Control Lists
+  sns_topic:
+    name: "{{ name }}"
+    state: present
+    display_name: "SNS topic"
+    subscriptions:
+      - endpoint: "{{ endpoint }}"
+        protocol: "{{ protocol }}"
+  when: lodgmetralaforNACL4_11audit.stdout.find("FAILED") != -1
+  tags:
+    - lodgmetralaforNACL4_11audit
+    - '4.11'
+    - four
+    - all
+
+- name: 4.11 Ensure a log metric filter and alarm exist for changes to Network Access Control Lists
+  ec2_metric_alarm:
+    state: present
+    region: "{{ region }}"
+    name: "{{ name11 }}"
+    metric: "{{ metric11 }}"
+    namespace: "{{ namespace }}"
+    statistic: "Minimum"
+    comparison: ">="
+    threshold: "{{ threshold }}"
+    period: "{{ period }}"
+    evaluation_periods: "{{ evaluation_periods }}"
+    unit: "Count"
+    alarm_actions: "{{ alarm_actions }}"
+  when: lodgmetralaforNACL4_11audit.stdout.find("FAILED") != -1
+  tags:
+    - lodgmetralaforNACL4_11audit
+    - '4.11'
+    - four
+    - all
+
+- name: 4.12 Ensure a log metric filter and alarm exist for changes to network gateways
+  shell: echo "{{ ansible_local.lodgmetralafornetworkgatway4_12audit }}"
+  register: lodgmetralafornetworkgatway4_12audit
+  ignore_errors: True
+  tags:
+    - lodgmetralafornetworkgatway4_12audit
+    - '4.12'
+    - four
+    - all
+
+- name: 4.12 Ensure a log metric filter and alarm exist for changes to network gateways
+  community.aws.cloudwatchlogs_log_group_metric_filter:
+    log_group_name: "{{ log_group_name }}"
+    filter_name: "{{ filter_name12 }}"
+    filter_pattern:  '{ ($.eventName = CreateCustomerGateway) || ($.eventName = DeleteCustomerGateway) || ($.eventName = AttachInternetGateway) || ($.eventName = CreateInternetGateway) || ($.eventName = DeleteInternetGateway) || ($.eventName = DetachInternetGateway) }'
+    state: present
+    metric_transformation:
+        metric_name: "{{ metric_name12 }}"
+        metric_namespace: "{{ metric_namespace }}"
+        metric_value: "{{ metric_value }}"
+  when: lodgmetralafornetworkgatway4_12audit.stdout.find("FAILED") != -1
+  tags:
+    - lodgmetralafornetworkgatway4_12audit
+    - '4.12'
+    - four
+    - all
+
+- name: 4.12 Ensure a log metric filter and alarm exist for changes to network gateways
+  sns_topic:
+    name: "{{ name }}"
+    state: present
+    display_name: "SNS topic"
+    subscriptions:
+      - endpoint: "{{ endpoint }}"
+        protocol: "{{ protocol }}"
+  when: lodgmetralafornetworkgatway4_12audit.stdout.find("FAILED") != -1
+  tags:
+    - lodgmetralafornetworkgatway4_12audit
+    - '4.12'
+    - four
+    - all
+
+- name: 4.12 Ensure a log metric filter and alarm exist for changes to network gateways
+  ec2_metric_alarm:
+    state: present
+    region: "{{ region }}"
+    name: "{{ name12 }}"
+    metric: "{{ metric12 }}"
+    namespace: "{{ namespace }}"
+    statistic: "Minimum"
+    comparison: ">="
+    threshold: "{{ threshold }}"
+    period: "{{ period }}"
+    evaluation_periods: "{{ evaluation_periods }}"
+    unit: "Count"
+    alarm_actions: "{{ alarm_actions }}"
+  when: lodgmetralafornetworkgatway4_12audit.stdout.find("FAILED") != -1
+  tags:
+    - lodgmetralafornetworkgatway4_12audit
+    - '4.12'
+    - four
+    - all
+
+- name: 4.13 Ensure a log metric filter and alarm exist for route table changes
+  shell: echo "{{ ansible_local.lodgmetralaforrouttabchang4_13audit }}"
+  register: lodgmetralaforrouttabchang4_13audit
+  ignore_errors: True
+  tags:
+    - lodgmetralaforrouttabchang4_13audit
+    - '4.13'
+    - four
+    - all
+
+- name: 4.13 Ensure a log metric filter and alarm exist for route table changes
+  community.aws.cloudwatchlogs_log_group_metric_filter:
+    log_group_name: "{{ log_group_name }}"
+    filter_name: "{{ filter_name13 }}"
+    filter_pattern:  '{ ($.eventName = CreateRoute) || ($.eventName = CreateRouteTable) || ($.eventName = ReplaceRoute) || ($.eventName = ReplaceRouteTableAssociation) || ($.eventName = DeleteRouteTable) || ($.eventName = DeleteRoute) || ($.eventName = DisassociateRouteTable) }'
+    state: present
+    metric_transformation:
+        metric_name: "{{ metric_name13 }}"
+        metric_namespace: "{{ metric_namespace }}"
+        metric_value: "{{ metric_value }}"
+  when: lodgmetralaforrouttabchang4_13audit.stdout.find("FAILED") != -1
+  tags:
+    - lodgmetralaforrouttabchang4_13audit
+    - '4.13'
+    - four
+    - all
+
+- name: 4.13 Ensure a log metric filter and alarm exist for route table changes
+  sns_topic:
+    name: "{{ name }}"
+    state: present
+    display_name: "SNS topic"
+    subscriptions:
+      - endpoint: "{{ endpoint }}"
+        protocol: "{{ protocol }}"
+  when: lodgmetralaforrouttabchang4_13audit.stdout.find("FAILED") != -1
+  tags:
+    - lodgmetralaforrouttabchang4_13audit
+    - '4.13'
+    - four
+    - all
+
+- name: 4.13 Ensure a log metric filter and alarm exist for route table changes
+  ec2_metric_alarm:
+    state: present
+    region: "{{ region }}"
+    name: "{{ name13 }}"
+    metric: "{{ metric13 }}"
+    namespace: "{{ namespace }}"
+    statistic: "Minimum"
+    comparison: ">="
+    threshold: "{{ threshold }}"
+    period: "{{ period }}"
+    evaluation_periods: "{{ evaluation_periods }}"
+    unit: "Count"
+    alarm_actions: "{{ alarm_actions }}"
+  when: lodgmetralaforrouttabchang4_13audit.stdout.find("FAILED") != -1
+  tags:
+    - lodgmetralaforrouttabchang4_13audit
+    - '4.13'
+    - four
+    - all
+
+- name: 4.14 Ensure a log metric filter and alarm exist for VPC changes
+  shell: echo "{{ ansible_local.lodgmetralaforvpcchang4_14audit }}"
+  register: lodgmetralaforvpcchang4_14audit
+  ignore_errors: True
+  tags:
+    - lodgmetralaforvpcchang4_14audit
+    - '4.14'
+    - four
+    - all
+
+- name: 4.14 Ensure a log metric filter and alarm exist for VPC changes
+  community.aws.cloudwatchlogs_log_group_metric_filter:
+    log_group_name: "{{ log_group_name }}"
+    filter_name: "{{ filter_name14 }}"
+    filter_pattern:  '{ ($.eventName = CreateVpc) || ($.eventName = DeleteVpc) || ($.eventName = ModifyVpcAttribute) || ($.eventName = AcceptVpcPeeringConnection) || ($.eventName = CreateVpcPeeringConnection) || ($.eventName = DeleteVpcPeeringConnection) || ($.eventName = RejectVpcPeeringConnection) || ($.eventName = AttachClassicLinkVpc) || ($.eventName = DetachClassicLinkVpc) || ($.eventName = DisableVpcClassicLink) || ($.eventName = EnableVpcClassicLink) }'
+    state: present
+    metric_transformation:
+        metric_name: "{{ metric_name14 }}"
+        metric_namespace: "{{ metric_namespace }}"
+        metric_value: "{{ metric_value }}"
+  when: lodgmetralaforvpcchang4_14audit.stdout.find("FAILED") != -1
+  tags:
+    - lodgmetralaforvpcchang4_14audit
+    - '4.14'
+    - four
+    - all
+
+- name: 4.14 Ensure a log metric filter and alarm exist for VPC changes
+  sns_topic:
+    name: "{{ name }}"
+    state: present
+    display_name: "SNS topic"
+    subscriptions:
+      - endpoint: "{{ endpoint }}"
+        protocol: "{{ protocol }}"
+  when: lodgmetralaforvpcchang4_14audit.stdout.find("FAILED") != -1
+  tags:
+    - lodgmetralaforvpcchang4_14audit
+    - '4.14'
+    - four
+    - all
+
+- name: 4.14 Ensure a log metric filter and alarm exist for VPC changes
+  ec2_metric_alarm:
+    state: present
+    region: "{{ region }}"
+    name: "{{ name14 }}"
+    metric: "{{ metric14 }}"
+    namespace: "{{ namespace }}"
+    statistic: "Minimum"
+    comparison: ">="
+    threshold: "{{ threshold }}"
+    period: "{{ period }}"
+    evaluation_periods: "{{ evaluation_periods }}"
+    unit: "Count"
+    alarm_actions: "{{ alarm_actions }}"
+  when: lodgmetralaforvpcchang4_14audit.stdout.find("FAILED") != -1
+  tags:
+    - lodgmetralaforvpcchang4_14audit
+    - '4.14'
+    - four
+    - all
+
+- name: 4.15 Ensure a log metric filter and alarm exists for AWS Organizations Changes
+  shell: echo "{{ ansible_local.lodgmetralaforawsorgchang4_15audit }}"
+  register: lodgmetralaforawsorgchang4_15audit
+  ignore_errors: True
+  tags:
+    - lodgmetralaforawsorgchang4_15audit
+    - '4.15'
+    - four
+    - all
+
+- name: 4.15 Ensure a log metric filter and alarm exists for AWS Organizations Changes
+  community.aws.cloudwatchlogs_log_group_metric_filter:
+    log_group_name: cislog1
+    filter_name: AWSOrgChanges
+    filter_pattern: '{ ($.eventSource = organizations.amazonaws.com) && (($.eventName = "AcceptHandshake")  || ($.eventName = "AttachPolicy")  || ($.eventName = "CreateAccount") || ($.eventName = "CreateOrganizationalUnit") || ($.eventName = "CreatePolicy") || ($.eventName = "DeclineHandshake") || ($.eventName = "DeleteOrganization") || ($.eventName = "DeleteOrganizationalUnit") || ($.eventName = "DeletePolicy") ||  ($.eventName = "DetachPolicy") || ($.eventName = "DisablePolicyType") || ($.eventName = "EnablePolicyType") || ($.eventName = "InviteAccountToOrganization") || ($.eventName = "LeaveOrganization") || ($.eventName = "MoveAccount") || ($.eventName = "RemoveAccountFromOrganization") || ($.eventName = "UpdatePolicy") || ($.eventName = "UpdateOrganizationalUnit")) }'
+    state: present
+    metric_transformation:
+        metric_name: "{{ metric_name15 }}"
+        metric_namespace: "{{ metric_namespace }}"
+        metric_value: "{{ metric_value }}"
+  when: lodgmetralaforawsorgchang4_15audit.stdout.find("FAILED") != -1
+  tags:
+    - lodgmetralaforawsorgchang4_15audit
+    - '4.15'
+    - four
+    - all
+
+- name: 4.15 Ensure a log metric filter and alarm exists for AWS Organizations Changes
+  sns_topic:
+    name: "{{ name }}"
+    state: present
+    display_name: "SNS topic"
+    subscriptions:
+      - endpoint: "{{ endpoint }}"
+        protocol: "{{ protocol }}"
+  when: lodgmetralaforawsorgchang4_15audit.stdout.find("FAILED") != -1
+  tags:
+    - lodgmetralaforawsorgchang4_15audit
+    - '4.15'
+    - four
+    - all
+
+- name: 4.15 Ensure a log metric filter and alarm exists for AWS Organizations Changes
+  ec2_metric_alarm:
+    state: present
+    region: "{{ region }}"
+    name: "{{ name15 }}"
+    metric: "{{ metric15 }}"
+    namespace: "{{ namespace }}"
+    statistic: "Minimum"
+    comparison: ">="
+    threshold: "{{ threshold }}"
+    period: "{{ period }}"
+    evaluation_periods: "{{ evaluation_periods }}"
+    unit: "Count"
+    alarm_actions: "{{ alarm_actions }}"
+  when: lodgmetralaforawsorgchang4_15audit.stdout.find("FAILED") != -1
+  tags:
+    - lodgmetralaforawsorgchang4_15audit
+    - '4.15'
+    - four
+    - all
+
+- name: 5.1 Ensure no Network ACLs allow ingress to remote server administration ports
+  shell: echo "{{ ansible_local.networkaclingress5_1audit }}"
+  register: networkaclingress5_1audit
+  ignore_errors: True
+  tags:
+    - networkaclingress5_1audit
+    - '5.1'
+    - five
+    - all
+
+- name: 5.1 Ensure no Network ACLs allow ingress  to remote server administration ports
+  shell: |
+    for NetworkAclId in `aws ec2 describe-network-acls | jq '.NetworkAcls[].NetworkAclId' | sed 's/"//g'`;
+    do
+    for RuleNumber in `aws ec2 describe-network-acls | jq '.NetworkAcls[].Entries[].RuleNumber' | sed 's/"//g'`;
+    do
+    aws ec2 delete-network-acl-entry --network-acl-id $NetworkAclId --ingress --rule-number $RuleNumber
+    done
+    done
+  args:
+    executable: /bin/bash
+  when: networkaclingress5_1audit.stdout.find("FAILED") != -1
+  tags:
+    - networkaclingress5_1audit
+    - '5.1'
+    - five
+    - all
+
+- name: 5.2 Ensure no security groups allow ingress to remote server administration ports
+  shell: echo "{{ ansible_local.securitygrping5_2audit }}"
+  register: securitygrping5_2audit
+  ignore_errors: True
+  tags:
+    - securitygrping5_2audit
+    - '5.2'
+    - five
+    - all
+
+- name: 5.2 Ensure no security groups allow ingress  to remote server administration ports
+  shell: |
+    for GroupName in `aws ec2 describe-security-groups | jq '.SecurityGroups[].GroupName' | sed 's/"//g'`;
+    do
+    aws ec2 revoke-security-group-ingress --group-name $GroupName --protocol tcp --port 22 --cidr 0.0.0.0/0
+    aws ec2 revoke-security-group-ingress --group-name $GroupName --protocol tcp --port 3389 --cidr 0.0.0.0/0
+    done
+  args:
+    executable: /bin/bash
+  when: securitygrping5_2audit.stdout.find("FAILED") != -1
+  tags:
+    - securitygrping5_2audit
+    - '5.2'
+    - five
+    - all
+
+- name: 5.3 Ensure the default security group of every VPC restricts all traffic
+  shell: echo "{{ ansible_local.securitygrpalltraf5_3audit }}"
+  register: securitygrpalltraf5_3audit
+  ignore_errors: True
+  tags:
+    - securitygrpalltraf5_3audit
+    - '5.3'
+    - five
+    - all
+
+- name: 5.3 Ensure the default security group of every VPC restricts all traffic
+  shell: |
+    for GroupId in `aws ec2 describe-security-groups --filter Name=group-name,Values=default | jq '.SecurityGroups[].GroupId' | sed 's/"//g' | sed 's/ //g' |  sed '/^$/d'`;
+    do
+    aws ec2 revoke-security-group-ingress --group-id $GroupId  --protocol all --cidr 0.0.0.0/0
+    aws ec2 revoke-security-group-egress --group-id $GroupId --protocol all --cidr 0.0.0.0/0
+    done
+  args:
+    executable: /bin/bash
+  when: securitygrpalltraf5_3audit.stdout.find("FAILED") != -1
+  tags:
+    - securitygrpalltraf5_3audit
+    - '5.3'
+    - five
+    - all
+
+- name: 5.4 Ensure routing tables for VPC peering are "least access"
+  shell: echo "{{ ansible_local.vpcleastaccess5_4audit }}"
+  register: vpcleastaccess5_4audit
+  ignore_errors: True
+  tags:
+    - vpcleastaccess5_4audit
+    - '5.4'
+    - five
+    - all
+
+- name: 5.4 Ensure routing tables for VPC peering are "least access"
+  shell: |
+    for RouteTableId in `aws ec2 describe-route-tables | jq '.RouteTables[].RouteTableId' | sed 's/"//g'`;
+    do
+    for DestinationCidr in `aws ec2 describe-route-tables | jq '.RouteTables[].Routes[].DestinationCidrBlock' | sed 's/"//g'`;
+    do
+    for VPCpeeringId in `aws ec2 describe-vpc-peering-connections | jq '.VpcPeeringConnections[].VpcPeeringConnectionId' | sed 's/"//g'`;
+    do
+    aws ec2 delete-route --route-table-id $RouteTableId --destination-cidr-block $DestinationCidr
+    aws ec2 create-route --route-table-id $RouteTableId --destination-cidr-block $DestinationCidr --vpc-peering-connection-id $VPCpeeringId
+    done
+    done
+    done
+  args:
+    executable: /bin/bash
+  when: vpcleastaccess5_4audit.stdout.find("FAILED") != -1
+  tags:
+    - vpcleastaccess5_4audit
+    - '5.4'
+    - five
+    - all

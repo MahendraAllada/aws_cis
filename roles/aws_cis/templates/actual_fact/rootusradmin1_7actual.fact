@@ -1,0 +1,11 @@
+#!/bin/bash
+#1.7 Eliminate use of the root user for administrative and daily tasks
+# ** AUTO GENERATED **
+
+aws iam generate-credential-report >/dev/null
+cmd=$(aws iam list-access-keys | jq -r '.AccessKeyMetadata[].AccessKeyId')
+if [ "$(aws iam get-credential-report --query 'Content' --output text | base64 -d | cut -d, -f1,5,11,16 | grep -B1 '<root_account>' | cut -d, -f1,3,4 | wc -l)" -eq 2 ]; then
+   echo "{ \"EliminateRootUserForAdministrative \" : \"$cmd\" }"
+else
+   echo "{ \"1.7 Eliminate use of the root user for administrative and daily tasks\" : \"\" }"
+fi

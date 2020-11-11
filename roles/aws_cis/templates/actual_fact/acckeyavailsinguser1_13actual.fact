@@ -1,0 +1,24 @@
+#!/bin/sh
+# ** AUTO GENERATED **
+
+count=0
+for UserName in `aws iam list-users --query 'Users[*].UserName' --output text`;
+do
+if [ $(aws iam list-access-keys --user-name $UserName | jq '.AccessKeyMetadata[].Status' | grep -c -i Active) -eq 0 ]; then
+   count=$((count+1))
+fi
+done
+
+VARIABLE=$(for UserName in `aws iam list-users --query 'Users[*].UserName' --output text`;
+do
+AccessKeyIdValue=$(aws iam list-access-keys --user-name $UserName | jq -r '.AccessKeyMetadata[].AccessKeyId')
+if [ $(aws iam list-access-keys --user-name $UserName | jq '.AccessKeyMetadata[].Status' | grep -c -i Active) -eq 0 ]; then
+  echo "{ \"AccessKeyId\" : \"$AccessKeyIdValue\" }"
+fi
+done | tr '\n' ',' | sed 's/,$//')
+
+if [ "$count" -eq 0 ]; then
+  echo "{ \"acckeyavailsinguser\" : \"\" }"
+else
+  echo "{ \"acckeyavailsinguser\" : [ $VARIABLE ] }"
+fi

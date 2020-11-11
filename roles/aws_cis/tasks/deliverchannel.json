@@ -1,0 +1,8 @@
+{
+  "name": "default",
+  "s3BucketName": "opszip",
+  "snsTopicARN": "arn:aws:sns:us-east-1:405042254276:cis-sns.fifo",
+  "configSnapshotDeliveryProperties": {
+    "deliveryFrequency": "Twelve_Hours"
+  }
+}

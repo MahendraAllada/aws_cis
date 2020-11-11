@@ -1,0 +1,19 @@
+#!/bin/bash
+# ** AUTO GENERATED **
+# 3.4 Ensure CloudTrail trails are integrated with CloudWatch Logs
+
+count=0
+if [ "$(aws cloudtrail describe-trails | jq '.trailList[].CloudWatchLogsLogGroupArn')" ]; then
+for TrailName in `aws cloudtrail describe-trails | jq '.trailList[].Name' | sed 's/"//g'`;
+do
+if [ "$(aws cloudtrail get-trail-status --name $TrailName | jq -r '.LatestCloudWatchLogsDeliveryTime' | wc -l)" -eq 0 ];then
+ count=$((count+1))
+fi
+done
+fi
+
+if [ "$count" -eq "0" ]; then
+echo "{ \"ctintegcwlogs\" : \"Not Integrated\" }"
+else
+echo "{ \"ctintegcwlogs\" : \"\" }"
+fi

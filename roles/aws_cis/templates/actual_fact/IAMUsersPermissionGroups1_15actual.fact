@@ -1,0 +1,12 @@
+#!/bin/sh
+# ** AUTO GENERATED **
+
+for UserName in `aws iam list-users --query 'Users[*].UserName' --output text`;
+do
+cmd=$(aws iam list-attached-user-policies --user-name $UserName && aws iam list-user-policies --user-name $UserName)
+if [ $(aws iam list-attached-user-policies --user-name $UserName | wc -l) -eq "3" ] && [ $(aws iam list-user-policies --user-name $UserName | wc -l) -eq "3" ]; then
+   echo "{ \"IAMUsersPermissionGroups\" : \"\" }"
+else
+   echo "{ \"IAMUsersPermissionGroups\" : [ $cmd ] }"
+fi
+done

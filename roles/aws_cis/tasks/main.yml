@@ -1,0 +1,43 @@
+---
+##### CIS Amazon Web Services Foundation Benchmark 1.3 ##### 
+
+### Transferring of Audit Facts ###
+  - name: Tranferring of custom  "Audit Fact" files to 
+    include: audit_fact.yml
+    tags:
+      - awscis
+      - auditfacts
+
+### Transferring of Actual Facts ###
+  - name: Tranferring of custom  "Actual Fact" files to gcp_node
+    include: actual_fact.yml
+    tags:
+      - awscis
+      - actualfact
+
+### Reloading of Facts ###
+  - name: Reloading the Gathered Facts
+    setup: filter=ansible_local
+    tags:
+      - always
+
+### Importing into Database ###
+  - name: Import custom facts value into Local Database
+    include: database.yml
+    tags:
+      - awscis
+      - database
+      - never
+
+### Remedy  ###
+  - name: Remedy for gcpcis
+    include: remedy_awscis.yml 
+    tags:
+      - awscis
+      - remedy
+
+### Reloading of Facts ###
+  - name: Reloading the Gathered facts
+    setup: filter=ansible_local
+    tags:
+      - always

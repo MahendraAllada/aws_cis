@@ -1,0 +1,9 @@
+#!/bin/sh
+# ** AUTO GENERATED **
+
+cmd=$(aws iam get-account-summary | egrep "AccountAccessKeysPresent.*1")
+if [ $(aws iam get-account-summary | egrep "AccountAccessKeysPresent.*1" | wc -l) -eq 0 ]; then
+    echo "{ \"1.4  Ensure no root user account access key exists\" : \"\"}"
+else
+   echo "{ \"RootAccountAccesskeysexist\" : \"$cmd\"}"
+fi

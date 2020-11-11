@@ -1,0 +1,27 @@
+---
+- hosts: all
+  gather_facts: no
+  become_method: sudo
+  become: yes
+
+  tasks:
+  
+  - name: 2.1.1 Fetching the bucketname list
+    shell: aws s3api list-buckets | jq '.Buckets[].Name' | sed 's/"//g'
+    register: bucket_names
+    tags:
+      - s3encryp
+      - '3.6'
+      - rollbacktwo
+      - all
+  
+  - name: Remove logging on an s3 bucket
+    community.aws.s3_logging:
+      name: "{{ item }}"
+      state: absent
+    loop: "{{ bucket_names.stdout_lines }}"
+    tags:
+      - s3encryp
+      - '3.6'
+      - rollbacktwo
+      - all

@@ -1,0 +1,12 @@
+#!/bin/sh
+# ** AUTO GENERATED **
+# 3.9 Ensure VPC flow logging is enabled in all VPCs
+
+if [ "$(aws ec2 describe-flow-logs | jq -r '.FlowLogs[].FlowLogStatus' | grep ACTIVE | wc -l)" -eq 0 ];then
+    count=$((count+1))
+fi
+if [ "$count" -eq "0" ]; then
+   echo "{ \"VPCFlowLogEnabled\" : \"PASSED\" }"
+else
+   echo "{ \"Ensure VPC flow logging is enabled in all VPCs\" : \"FAILED\" }"
+fi

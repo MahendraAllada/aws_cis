@@ -1,0 +1,179 @@
+---
+# defaults file for aws_cis
+
+# IAM password policy requires minimum length of 14 or greater
+
+Min-length: "15"
+
+# IAM password policy prevents password reuse
+
+pass-reuse: "24"
+
+# IAM Users Receive Permissions Only Through Groups
+
+managed-policy1: "arn:aws:iam::aws:policy/AmazonSNSFullAccess"
+manages-policy2: "arn:aws:iam::aws:policy/AlexaForBusinessFullAccess"
+user: "mahi-user"
+name0: "testgroup1"
+
+# support role has been created to manage incidents with AWS Support
+
+name_of_role: "supportrole" 
+Policy_Arn: "arn:aws:iam::aws:policy/AWSSupportAccess"
+
+# S3 Buckets are configured with 'Block public access'
+
+AccountNumber: "405042254276"
+
+# IAM Access analyzer is enabled
+
+AccessAnalyzerName: "mahi" 
+
+# CloudTrail is enabled in all regions
+
+Name1: "dap"
+Name2: "pad"
+S3BucketName1: "amn"
+S3BucketName2: "amn"
+Region1: "us-east-1"
+Region2: "us-east-1"
+
+# CloudTrail log file validation is enabled
+
+Name3: "dap"
+Name4: "pad"
+S3BucketName3: "amn"
+S3BucketName4: "amn"
+Region3: "us-east-1"
+Region4: "us-east-1"
+
+# CloudTrail trails are integrated with CloudWatch Logs
+
+Name5: "dap"
+Name6: "pad"
+S3BucketName5: "amn"
+S3BucketName6: "amn"
+cloudwatch_logs_role_arn: "arn:aws:iam::405042254276:role/CloudTrail_CloudWatchLogs_Role"
+cloudwatch_logs_log_group_arn: "arn:aws:logs:us-east-1:405042254276:log-group:cislog1:*"
+
+# VPC flow logging is enabled in all VPCs
+
+Log_Destination: "arn:aws:s3:::zipops/mahi/"
+
+# log metric filter and alarm exist for unauthorized API calls
+
+log_group_name: "cislog1"
+filter_name1: "APICALLS"
+metric_name1: "APICALLSCount"
+metric_namespace: "CloudTrailMetrics"
+metric_value: "1"
+name: "cis-sns"
+endpoint: "+91 7675955514"
+protocol: "sms"
+region: "us-east-1"
+name1: "apialarm"
+metric1: "APICALLSCount"
+namespace: "CloudTrailMetrics"
+threshold: "1.0"
+period: "300"
+evaluation_periods: "1"
+unit: "Count"
+alarm_actions: ["arn:aws:sns:us-east-1:405042254276:cis-sns"]
+
+# log metric filter and alarm exist for Management Console signin without MFA
+
+filter_name2: "ConsoleSignInWithoutMfa"
+metric_name2: "ConsoleSignInWithoutMfaCount"
+name2: "ConsoleSignInWithoutMfaalarm"
+metric2: "ConsoleSignInWithoutMfaCount"
+
+# log metric filter and alarm exist for usage of root account
+
+metric_name3: "RootAccountUsageCount"
+filter_name3: "RootAccountUsage"
+name3: "RootAccountUsagecountalarm"
+metric3: "RootAccountUsageCount"
+
+# log metric filter and alarm exist for IAM policy changes
+
+filter_name4: "IAMPolicyEvent"
+metric_name4: "IAMPolicyEventCount"
+name4: "IAMalarm"
+metric4: "IAMPolicyEventCount"
+
+# log metric filter and alarm exist for CloudTrail configuration changes
+
+filter_name5: "CloudTrailChanges"
+metric_name5: "CloudTrailChangesCount"
+name5: "CTChangealarm"
+metric5: "CloudTrailChangesCount"
+
+# log metric filter and alarm exist for AWS Management Console authentication failures
+
+name6: "AUTHFalarm"
+metric6: "AuthorizationFailuresCount"
+filter_name6: "AuthorizationFailures"
+metric_name6: "AuthorizationFailuresCount"
+
+# log metric filter and alarm exist for disabling or scheduled deletion of customer created CMK
+
+filter_name7: "DeletionCMK"
+metric_name7: "DeletionCMKCount"
+name7: "CMKalarm"
+metric7: "DeletionCMKCount"
+
+# log metric filter and alarm exist for S3 bucket policy changes
+
+metric_name8: "S3BucketActivityCount"
+filter_name8: "S3BucketActivity"
+name8: "S3BPalarm"
+metric8: "S3BucketActivityCount"
+
+# log metric filter and alarm exist for AWS Config configuration changes
+
+metric_name9: "ConfigChangeCount"
+filter_name9: "ConfigChange"
+name9: "AWSCONFIGalarm"
+metric9: "ConfigChangeCount"
+
+# log metric filter and alarm exist for security group changes
+
+filter_name10: "SecurityGroupEvents"
+metric_name10: "SecurityGroupEventsCount"
+name10: "Securityalarm"
+metric10: "SecurityGroupEventsCount"
+
+# log metric filter and alarm exist for changes to Network Access Control Lists
+
+filter_name11: "NetworkACLEvents"
+metric_name11: "NetworkACLEventsCount"
+name11: "NACLalarm"
+metric11: "NetworkACLEventsCount"
+
+# log metric filter and alarm exist for changes to network gateways
+
+filter_name12: "GatewayChanges"
+metric_name12: "GatewayChangesCount"
+name12: "NGalarm"
+metric12: "GatewayChangesCount"
+
+# log metric filter and alarm exist for route table changes
+
+filter_name13: "Routetablefilter"
+metric_name13: "RoutetablefilterCount"
+name13: "Routealarm"
+metric13: "RoutetablefilterCount"
+
+# log metric filter and alarm exist for VPC changes
+
+filter_name14: "VpcChanges"
+metric_name14: "VpcChangesCount"
+name14: "VPCalarm"
+metric14: "VpcChangesCount"
+
+# log metric filter and alarm exists for AWS Organizations Changes
+
+filter_name15: "AWSOrgChanges"
+metric_name15: "AWSOrgChangesCount"
+name15: "NACLalarm"
+metric15: "AWSOrgChangesCount"

@@ -1,0 +1,554 @@
+---
+####AUDIT FACT####
+  - name: "Ensure custom fact directory exists"
+    file:
+      path: "{{ item }}"
+      recurse: yes
+      state: directory
+    with_items:
+      - /etc/ansible
+      - /etc/ansible/facts.d
+
+  - name: Transfering rootaccacckeyexists1_4audit auditfact file
+    template:
+      src:  ../templates/audit_facts/rootaccacckeyexists1_4audit.fact      
+      dest: /etc/ansible/facts.d/
+      mode: 0755
+    tags:
+      - rootaccacckeyexists1_4audit
+      - '1.4'
+      - one
+      - all
+
+  - name: Transfering mfaenabroot1_5audit auditfact file
+    template:
+      src: ../templates/audit_facts/mfaenabroot1_5audit.fact
+      dest: /etc/ansible/facts.d/
+      mode: 0755
+    tags:
+      - mfaenabroot1_5audit
+      - '1.5'
+      - one
+      - all
+
+  - name: Transfering rootusradmin1_7audit auditfact file
+    template:
+      src: ../templates/audit_facts/rootusradmin1_7audit.fact 
+      dest: /etc/ansible/facts.d/
+      mode: 0755
+    tags:
+      - rootusradmin1_7audit
+      - '1.7'
+      - one
+      - all
+
+  - name: Transfering minlength1_8audit auditfact file
+    template:
+      src: ../templates/audit_facts/minlength1_8audit.fact
+      dest: /etc/ansible/facts.d/
+      mode: 0755
+    tags:
+      - minlength1_8audit
+      - '1.8'
+      - one
+      - all
+
+  - name: Transfering passreuse1_9audit auditfact file
+    template:
+      src: ../templates/audit_facts/passreuse1_9audit.fact
+      dest: /etc/ansible/facts.d/
+      mode: 0755
+    tags:
+      - passreuse1_9audit
+      - '1.9'
+      - one
+      - all
+
+  - name: Transfering mfaenabusers1_10audit auditfact file
+    template:
+      src: ../templates/audit_facts/mfaenabusers1_10audit.fact
+      dest: /etc/ansible/facts.d/
+      mode: 0755
+    tags:
+      - mfaenabusers1_10audit
+      - '1.10'
+      - one
+      - all
+
+  - name: Transfering iamconsolepasswd1_11audit auditfact file
+    template:
+      src: ../templates/audit_facts/iamconsolepasswd1_11audit.fact
+      dest: /etc/ansible/facts.d/
+      mode: 0755
+    tags:
+      - iamconsolepasswd1_11audit
+      - '1.11'
+      - one
+      - all
+
+  - name: Transfering credusedfor90days_1_12audit auditfact file
+    template:
+      src: ../templates/audit_facts/credusedfor90days_1_12audit.fact 
+      dest: /etc/ansible/facts.d/
+      mode: 0755
+    tags:
+      - credusedfor90days_1_12audit
+      - '1.12'
+      - one
+      - all
+
+  - name: Transfering acckeyavailsinguser1_13audit auditfact file
+    template:
+      src: ../templates/audit_facts/acckeyavailsinguser1_13audit.fact 
+      dest: /etc/ansible/facts.d/
+      mode: 0755
+    tags:
+      - acckeyavailsinguser1_13audit
+      - '1.13'
+      - one
+      - all
+
+  - name: Transfering acckeyrotninetydays1_14audit auditfact file
+    template:
+      src: ../templates/audit_facts/acckeyrotninetydays1_14audit.fact
+      dest: /etc/ansible/facts.d/
+      mode: 0755
+    tags:
+      - acckeyrotninetydays1_14audit
+      - '1.14'
+      - one
+      - all
+
+  - name: Transfering IAMUsersPermissionGroups1_15audit auditfact file
+    template:
+      src: ../templates/audit_facts/IAMUsersPermissionGroups1_15audit.fact 
+      dest: /etc/ansible/facts.d/
+      mode: 0755
+    tags:
+      - IAMUsersPermissionGroups1_15audit
+      - '1.15'
+      - one
+      - all
+
+  - name: Transfering fulladminpriv1_16audit auditfact file
+    template:
+      src: ../templates/audit_facts/fulladminpriv1_16audit.fact 
+      dest: /etc/ansible/facts.d/
+      mode: 0755
+    tags:
+      - fulladminpriv1_16audit
+      - '1.16'
+      - one
+      - all
+
+  - name: Transfering awssupportaccess1_17audit auditfact file
+    template:
+      src: ../templates/audit_facts/awssupportaccess1_17audit.fact 
+      dest: /etc/ansible/facts.d/
+      mode: 0755
+    tags:
+      - awssupportaccess1_17audit
+      - '1.17'
+      - one
+      - all
+
+  - name: Transfering Iaminstrolesawsres_1_18audit auditfact file
+    template:
+      src: ../templates/audit_facts/Iaminstrolesawsres_1_18audit.fact
+      dest: /etc/ansible/facts.d/
+      mode: 0755
+    tags:
+      - Iaminstrolesawsres_1_18audit
+      - '1.18'
+      - one
+      - all
+
+  - name: Transfering s3blockpubaccess1_20audit auditfact file
+    template:
+      src: ../templates/audit_facts/s3blockpubaccess1_20audit.fact
+      dest: /etc/ansible/facts.d/
+      mode: 0755
+    tags:
+      - s3blockpubaccess1_20audit
+      - '1.20'
+      - one
+      - all
+
+  - name: Transfering accessanalyzer_1_21audit auditfact file
+    template:
+      src: ../templates/audit_facts/accessanalyzer_1_21audit.fact 
+      dest: /etc/ansible/facts.d/
+      mode: 0755
+    tags:
+      - accessanalyzer_1_21audit
+      - '1.21'
+      - one
+      - all
+      
+  - name: Transfering s3encryp_2_1_1audit auditfact file
+    template:
+      src: ../templates/audit_facts/s3encryp_2_1_1audit.fact
+      dest: /etc/ansible/facts.d/
+      mode: 0755
+    tags:
+      - s3encryp_2_1_1audit
+      - '2.1.1'
+      - two
+      - all
+
+  - name: Transfering s3http_2_1_2audit auditfact file
+    template:
+      src: ../templates/audit_facts/s3http_2_1_2audit.fact
+      dest: /etc/ansible/facts.d/
+      mode: 0755
+    tags:
+      - s3http_2_1_2audit
+      - '2.1.2'
+      - two
+      - all
+
+  - name: Transfering ebsencryp_2_2_1audit auditfact file
+    template:
+      src: ../templates/audit_facts/ebsencryp_2_2_1audit.fact 
+      dest: /etc/ansible/facts.d/
+      mode: 0755
+    tags:
+      - ebsencryp_2_2_1audit
+      - '2.2.1'
+      - two
+      - all
+
+  - name: Transfering ctenballreg3_1audit auditfact file
+    template:
+      src: ../templates/audit_facts/ctenballreg3_1audit.fact
+      dest: /etc/ansible/facts.d/
+      mode: 0755
+    tags:
+      - ctenballreg3_1audit
+      - '3.1'
+      - three
+      - all
+
+  - name: Transfering ctlogfvalid3_2audit auditfact file
+    template:
+      src: ../templates/audit_facts/ctlogfvalid3_2audit.fact
+      dest: /etc/ansible/facts.d/
+      mode: 0755
+    tags:
+      - ctlogfvalid3_2audit
+      - '3.2'
+      - three
+      - all
+
+  - name: Transfering ctnotpubaccess3_3audit auditfact file
+    template:
+      src: ../templates/audit_facts/ctnotpubaccess3_3audit.fact
+      dest: /etc/ansible/facts.d/
+      mode: 0755
+    tags:
+      - ctnotpubaccess3_3audit
+      - '3.3'
+      - three
+      - all
+
+  - name: Transfering ctintegcwlogs3_4audit auditfact file
+    template:
+      src: ../templates/audit_facts/ctintegcwlogs3_4audit.fact
+      dest: /etc/ansible/facts.d/
+      mode: 0755
+    tags:
+      - ctintegcwlogs3_4audit
+      - '3.4'
+      - three
+      - all
+
+  - name: Transfering awsconfig_3_5audit auditfact file
+    template:
+      src: ../templates/audit_facts/awsconfig_3_5audit.fact
+      dest: /etc/ansible/facts.d/
+      mode: 0755
+    tags:
+      - awsconfig_3_5audit
+      - '3.5'
+      - three
+      - all
+    
+  - name: Transfering servicelogging3_6audit auditfact file
+    template:
+      src: ../templates/audit_facts/servicelogging3_6audit.fact
+      dest: /etc/ansible/facts.d/
+      mode: 0755
+    tags:
+      - servicelogging3_6audit
+      - '3.6'
+      - three
+      - all
+
+  - name: Transfering ctlogencryp3_7audit auditfact file
+    template:
+      src: ../templates/audit_facts/ctlogencryp3_7audit.fact
+      dest: /etc/ansible/facts.d/
+      mode: 0755
+    tags:
+      - ctlogencryp3_7audit
+      - '3.7'
+      - three
+      - all
+
+  - name: Transfering cmkenable3_8audit auditfact file
+    template:
+      src: ../templates/audit_facts/cmkenable3_8audit.fact
+      dest: /etc/ansible/facts.d/
+      mode: 0755
+    tags:
+      - cmkenable3_8audit
+      - '3.8'
+      - three
+      - all
+
+  - name: Transfering flowlog_3_9audit auditfact file
+    template:
+      src: ../templates/audit_facts/flowlog_3_9audit.fact 
+      dest: /etc/ansible/facts.d/
+      mode: 0755
+    tags:
+      - flowlog_3_9audit
+      - '3.9'
+      - three
+      - all
+
+  - name: Transfering objlogwrite3_10audit auditfact file
+    template:
+      src: ../templates/audit_facts/objlogwrite3_10audit.fact
+      dest: /etc/ansible/facts.d/
+      mode: 0755
+    tags:
+      - objlogwrite3_10audit
+      - '3.10'
+      - three
+      - all
+
+  - name: Transfering objlogread3_11audit auditfact file
+    template:
+      src: ../templates/audit_facts/objlogread3_11audit.fact
+      dest: /etc/ansible/facts.d/
+      mode: 0755
+    tags:
+      - objlogread3_11audit
+      - '3.11'
+      - three
+      - all
+
+  - name: Transfering lodgmetralaforunauthcalls4_1audit auditfact file
+    template:
+      src: ../templates/audit_facts/lodgmetralaforunauthcalls4_1audit.fact
+      dest: /etc/ansible/facts.d/
+      mode: 0755
+    tags:
+      - lodgmetralaforunauthcalls4_1audit
+      - '4.1'
+      - four
+      - all
+    
+  - name: Transfering lodgmetralaformangconsigninmfa4_2audit auditfact file
+    template:
+      src: ../templates/audit_facts/lodgmetralaformangconsigninmfa4_2audit.fact 
+      dest: /etc/ansible/facts.d/
+      mode: 0755
+    tags:
+      - lodgmetralaformangconsigninmfa4_2audit
+      - '4.2'
+      - four
+      - all
+
+  - name: Transfering lodgmetralaforusageofrootacc4_3audit auditfact file
+    template:
+      src: ../templates/audit_facts/lodgmetralaforusageofrootacc4_3audit.fact
+      dest: /etc/ansible/facts.d/
+      mode: 0755
+    tags:
+      - lodgmetralaforusageofrootacc4_3audit
+      - '4.3'
+      - four
+      - all
+
+  - name: Transfering lodgmetralaforIAMpolchanges4_4audit auditfact file
+    template:
+      src: ../templates/audit_facts/lodgmetralaforIAMpolchanges4_4audit.fact
+      dest: /etc/ansible/facts.d/
+      mode: 0755
+    tags:
+      - lodgmetralaforIAMpolchanges4_4audit
+      - '4.4'
+      - four
+      - all
+
+  - name: Transfering lodgmetralaforCTconfigchanges_4_5audit auditfact file
+    template:
+      src: ../templates/audit_facts/lodgmetralaforCTconfigchanges_4_5audit.fact
+      dest: /etc/ansible/facts.d/
+      mode: 0755
+    tags:
+      - lodgmetralaforCTconfigchanges_4_5audit
+      - '4.5'
+      - four
+      - all
+
+  - name: Transfering lodgmetralaforawsmangconsauthfail_4_6audit auditfact file
+    template:
+      src: ../templates/audit_facts/lodgmetralaforawsmangconsauthfail_4_6audit.fact
+      dest: /etc/ansible/facts.d/
+      mode: 0755
+    tags:
+      -lodgmetralaforawsmangconsauthfail_4_6audit
+      - '4.6'
+      - four
+      - all
+
+  - name: Transfering lodgmetralafordelofCMK_4_7audit auditfact file
+    template:
+      src: ../templates/audit_facts/lodgmetralafordelofCMK_4_7audit.fact
+      dest: /etc/ansible/facts.d/
+      mode: 0755
+    tags:
+      - lodgmetralafordelofCMK_4_7audit
+      - '4.7'
+      - four
+      - all
+
+  - name: Transfering lodgmetralafors3buckpolchanges4_8audit auditfact file
+    template:
+      src: ../templates/audit_facts/lodgmetralafors3buckpolchanges4_8audit.fact
+      dest: /etc/ansible/facts.d/
+      mode: 0755
+    tags:
+      - lodgmetralafors3buckpolchanges4_8audit
+      - '4.8'
+      - four
+      - all
+
+  - name: Transfering lodgmetralaforawsconfigchanges_4_9audit auditfact file
+    template:
+      src: ../templates/audit_facts/lodgmetralaforawsconfigchanges_4_9audit.fact
+      dest: /etc/ansible/facts.d/
+      mode: 0755
+    tags:
+      - lodgmetralaforawsconfigchanges_4_9audit
+      - '4.9'
+      - four
+      - all
+
+  - name: Transfering lodgmetralaforsecgrpchanges4_10audit auditfact file
+    template:
+      src: ../templates/audit_facts/lodgmetralaforsecgrpchanges4_10audit.fact
+      dest: /etc/ansible/facts.d/
+      mode: 0755
+    tags:
+      - lodgmetralaforsecgrpchanges4_10audit
+      - '4.10'
+      - four
+      - all
+
+  - name: Transfering lodgmetralaforNACL4_11audit auditfact file
+    template:
+      src: ../templates/audit_facts/lodgmetralaforNACL4_11audit.fact
+      dest: /etc/ansible/facts.d/
+      mode: 0755
+    tags:
+      - lodgmetralaforNACL4_11audit
+      - '4.11'
+      - four
+      - all
+
+  - name: Transfering lodgmetralafornetworkgatway4_12audit auditfact file
+    template:
+      src: ../templates/audit_facts/lodgmetralafornetworkgatway4_12audit.fact 
+      dest: /etc/ansible/facts.d/
+      mode: 0755
+    tags:
+      - lodgmetralafornetworkgatway4_12audit
+      - '4.12'
+      - four
+      - all
+
+  - name: Transfering lodgmetralaforrouttabchang4_13audit auditfact file
+    template:
+      src: ../templates/audit_facts/lodgmetralaforrouttabchang4_13audit.fact
+      dest: /etc/ansible/facts.d/
+      mode: 0755
+    tags:
+      - lodgmetralaforrouttabchang4_13audit
+      - '4.13'
+      - four
+      - all
+
+  - name: Transfering lodgmetralaforvpcchang4_14audit auditfact file
+    template:
+      src: ../templates/audit_facts/lodgmetralaforvpcchang4_14audit.fact
+      dest: /etc/ansible/facts.d/
+      mode: 0755
+    tags:
+      - lodgmetralaforvpcchang4_14audit
+      - '4.14'
+      - four
+      - all
+
+  - name: Transfering lodgmetralaforawsorgchang4_15audit auditfact file
+    template:
+      src: ../templates/audit_facts/lodgmetralaforawsorgchang4_15audit.fact
+      dest: /etc/ansible/facts.d/
+      mode: 0755
+    tags:
+      - lodgmetralaforawsorgchang4_15audit
+      - '4.15'
+      - four
+      - all
+
+  - name: Transfering networkaclingress5_1audit auditfact file
+    template:
+      src: ../templates/audit_facts/networkaclingress5_1audit.fact
+      dest: /etc/ansible/facts.d/
+      mode: 0755
+    tags:
+      - networkaclingress5_1audit
+      - '5.1'
+      - five
+      - all
+
+  - name: Transfering securitygrping5_2audit auditfact file
+    template:
+      src: ../templates/audit_facts/securitygrping5_2audit.fact
+      dest: /etc/ansible/facts.d/
+      mode: 0755
+    tags:
+      - securitygrping5_2audit
+      - '5.2'
+      - six
+      - all
+
+  - name: Transfering securitygrpalltraf5_3audit auditfact file
+    template:
+      src: ../templates/audit_facts/securitygrpalltraf5_3audit.fact
+      dest: /etc/ansible/facts.d/
+      mode: 0755
+    tags:
+      - securitygrpalltraf5_3audit
+      - '5.3'
+      - six
+      - all
+
+  - name: Transfering vpcleastaccess5_4audit auditfact file
+    template:
+      src: ../templates/audit_facts/vpcleastaccess5_4audit.fact
+      dest: /etc/ansible/facts.d/
+      mode: 0755
+    tags:
+      - vpcleastaccess5_4audit
+      - '5.4'
+      - six
+      - all 
+
+  - name: reload ansible_local
+    setup: filter=ansible_local
+    tags:
+      - always

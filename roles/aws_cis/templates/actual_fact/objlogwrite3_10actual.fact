@@ -1,0 +1,25 @@
+#!/bin/bash
+#3.10 Ensure that Object-level logging for write events is enabled for S3 bucket
+
+count=0
+
+for TrailName in `aws cloudtrail describe-trails --region us-east-1 | jq '.trailList[].Name' | sed 's/"//g'`;
+do
+if [ "$(aws cloudtrail get-event-selectors --region us-east-1 --trail-name $TrailName --query EventSelectors[*].DataResources[] | grep WriteOnly | wc -l)" -eq 0 ]; then
+     count=$((count+1))
+fi
+done
+
+VARIABLE=$(for TrailName in `aws cloudtrail describe-trails --region us-east-1 | jq '.trailList[].Name' | sed 's/"//g'`;
+do
+BucketNameValue=$(aws cloudtrail describe-trails | jq -r '.trailList' | jq '.[] | select(.Name=="'$TrailName'")' | jq -r '.S3BucketName')
+if [ "$(aws cloudtrail get-event-selectors --region us-east-1 --trail-name $TrailName | grep WriteOnly | wc -l)" -eq 0 ]; then
+    echo "{ \"Trails\" : \"$TrailName\", \"BucketName\" : \"$BucketNameValue\" }"
+fi
+done | tr '\n' ',' | sed 's/,$//')
+
+if [ $count -eq 0 ]; then
+echo "{ \"objlogwrite\" : \"\" }"
+else
+echo "{ \"objlogwrite\" : [ $VARIABLE ] }"
+fi

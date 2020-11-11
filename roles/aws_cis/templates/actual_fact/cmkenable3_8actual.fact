@@ -1,0 +1,24 @@
+#!/bin/sh
+# ** AUTO GENERATED **
+# 3.8  Ensure rotation for customer created CMKs is enabled
+
+count=0
+for KeyId in `aws kms list-keys | jq '.Keys[].KeyId' | sed 's/"//g'`;
+do
+if [ "$(aws kms get-key-rotation-status --key-id $KeyId | grep "true" | wc -l)" -eq 0 ] ; then
+ count=$((count+1))
+fi
+done
+
+VARIABLE=$(for KeyId in `aws kms list-keys | jq '.Keys[].KeyId' | sed 's/"//g'`;
+do
+if [ "$(aws kms get-key-rotation-status --key-id $KeyId | grep "true" | wc -l)" -eq 0 ] ; then
+ echo "{ \"Keys\" : \"$KeyId\" }"
+fi
+done | tr '\n' ',' | sed 's/,$//')
+
+if [ "$count" -eq "0" ]; then
+   echo "{ \"cmkenable\" : \"\" }"
+else
+   echo "{ \"cmkenable\" : [ $VARIABLE ] }"
+fi

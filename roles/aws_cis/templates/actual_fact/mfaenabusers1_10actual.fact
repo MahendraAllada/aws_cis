@@ -1,0 +1,17 @@
+#!/bin/bash
+# ** AUTO GENERATED **
+
+count=0
+aws iam generate-credential-report >/dev/null
+
+cmd=$(aws iam get-credential-report --query 'Content' --output text | base64 -d | cut -d, -f1,8)
+if [ "$(aws iam get-credential-report --query 'Content' --output text | base64 -d | cut -d, -f1,4  | grep true | wc -l)" -gt 0 ]; then
+   if [ "$(aws iam get-credential-report --query 'Content' --output text | base64 -d | cut -d, -f1,8  | grep true | wc -l)" -gt 0 ]; then
+      count=$((count+1))
+   fi
+fi
+if [ "$count" -ne 0 ]; then
+   echo "{ \"MFAEnabledforallUsers\" : \"$cmd\" }"
+else
+   echo "{ \"1.10 Ensure multi-factor authentication (MFA) is enabled for all IAM users that have a console password\" : \"MFA IS NOT ACTIVE FOR USERS\" }"
+fi

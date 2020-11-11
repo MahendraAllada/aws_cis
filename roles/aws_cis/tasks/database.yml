@@ -1,0 +1,80 @@
+---
+  - name: Create a custom fact directory in localhost
+    file:
+      path: /var/lib/pgsql/cis_facts
+      recurse: yes
+      state: directory
+      mode: '0755'
+    delegate_to: localhost
+    tags:
+      - facts_directory
+      - all
+
+  - name: Gathering the custom facts to host specific filenames in localhost
+    copy:
+      content: "{{ ansible_local | to_json }}\n"
+      dest: "/var/lib/pgsql/cis_facts/{{ansible_hostname}}.json"
+    delegate_to: localhost
+    tags:
+      - gatheringfacts
+      - all
+
+  - name: Add Hostname to Factfile
+    shell: sed -i -e "s/^/{{ansible_nodename}}\|{{ansible_default_ipv4.address}}|/" /var/lib/pgsql/cis_facts/{{ansible_hostname}}.json
+    delegate_to: localhost
+    tags:
+      - gatheringfacts
+      - all
+
+  - name: Create database in localhost
+    postgresql_db:
+      name: cis_benchmark
+    become_user: postgres
+    delegate_to: localhost
+    tags:
+      - createdb
+      - all
+
+  - name: Create table
+    postgresql_table:
+      db: cis_benchmark
+      name: awscis
+      columns:
+      - id SERIAL PRIMARY KEY
+      - created_at TIMESTAMP DEFAULT NOW()
+      - hostname VARCHAR(100)
+      - ipaddress VARCHAR(100)
+      - values JSON
+    become_user: postgres
+#    when: inventory_hostname == play_hosts[1]
+    delegate_to: localhost
+    tags:
+      - createtable
+      - all
+
+  - name: Import the facts in local databse
+    postgresql_query:
+      db: cis_benchmark
+      query: COPY awscis(hostname,ipaddress,values) from PROGRAM 'cat /var/lib/pgsql/cis_facts/*' delimiter '|'
+    become_user: postgres
+#    when: inventory_hostname == play_hosts[1]
+    delegate_to: localhost
+    tags:
+      - imprtfact
+      - all
+
+#  - name: Grant the awx user access privilege for local database
+#    postgresql_query:
+#      db: postgres
+#      query: "{{ item }}"
+#    with_items:
+#      - REVOKE ALL ON DATABASE cis_benchmark FROM awx;
+#      - GRANT CONNECT ON DATABASE cis_benchmark TO awx;
+#      - GRANT SELECT ON ALL TABLES IN SCHEMA public TO awx;
+#      - ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO awx;
+#    become_user: postgres
+#    when: inventory_hostname == play_hosts[1]
+#    delegate_to: localhost
+#    tags:
+#      - grantaccess
+#      - all

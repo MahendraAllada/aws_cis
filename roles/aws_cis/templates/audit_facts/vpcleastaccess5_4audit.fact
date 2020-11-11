@@ -1,0 +1,17 @@
+#!/bin/sh
+# ** AUTO GENERATED **
+
+count=0
+for VPC in `aws ec2 describe-vpcs | jq '.Vpcs[].VpcId' | sed 's/"//g'`;
+do
+if [ $(aws ec2 describe-route-tables --filter "Name=vpc-id,Values=vpc-0701ee838bbdd39fe" --query "RouteTables[*].{RouteTableId:RouteTableId, VpcId:VpcId, Routes:Routes, AssociatedSubnets:Associations[*].SubnetId}" | jq  '.[].Routes[].GatewayId' | grep local | sed 's/"//g' | wc -l) -eq 0 ]; then
+   if [ $(aws ec2 describe-route-tables --filter "Name=vpc-id,Values=vpc-0701ee838bbdd39fe" --query "RouteTables[*].{RouteTableId:RouteTableId, VpcId:VpcId, Routes:Routes, AssociatedSubnets:Associations[*].SubnetId}" | jq  '.[].Routes[].DestinationCidrBlock' | sed 's/"//g' | wc -l) -eq 0 ]; then
+      count=$((count+1))
+   fi
+fi
+done
+if [ "$count" -eq 0 ]; then  
+   echo "{ \"5.4 Ensure routing tables for VPC peering are "least access"\" : \"FAILED\"}"
+else
+   echo "{ \"VPCLeastAccess\" : \"PASSED\"}"
+fi

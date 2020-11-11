@@ -1,0 +1,112 @@
+#!/bin/bash
+#1.12 Ensure credentials unused for 90 days or greater are disabled 
+
+aws iam generate-credential-report
+timeago='90 days ago'
+for PasswordLastUsed in `aws iam get-credential-report --query 'Content' --output text | base64 -d | cut -d, -f5 | sed 's/password_last_used//g' | sed 's/no_information//g' | sed '/^$/d'`;
+do
+    if [ "$(aws iam get-credential-report --query 'Content' --output text | base64 -d | cut -d, -f4  | grep false | wc -l)" -eq 0 ]; then
+
+            dtSec=$(date --date "$PasswordLastUsed" +'%s')
+        taSec=$(date --date "$timeago" +'%s')
+
+                if [ "dtSec=$dtSec, taSec=$taSec" >&2 ]; then
+         echo "{ \"PASSED For each user having password_enabled set to TRUE , ensure password_last_used_date is less than 90 days ago\" }"
+            if [ "$(aws iam get-credential-report --query 'Content' --output text | base64 -d | cut -d, -f4  | grep false | wc -l)" -eq 0 ]; then
+                    if [ "$(aws iam get-credential-report --query 'Content' --output text | base64 -d | cut -d, -f5 | grep no_information | sed 's/no_information//g' | sed '/^$/d' |wc -l)" -eq 0 ]; then
+                        for PasswordLastCanged in `aws iam get-credential-report --query 'Content' --output text | base64 -d | cut -d, -f6 | sed 's/password_last_changed//g' | sed 's/not_supported//g' | sed '/^$/d'`;
+                        do
+                            dt1Sec=$(date --date "$PasswordLastCanged" +'%s')
+                                if [ "dt1Sec=$dt1Sec, taSec=$taSec" >&2 ]; then
+                                echo "{ \"PASSED When password_enabled is set to TRUE and password_last_used is set to No_Information , ensure password_last_changed is less than 90 days ago\" }"
+                                    passed="2stagespassed"
+                                    else
+                        [ $dt1Sec -lt $taSec ] && echo too old
+                                    echo "{ \"Password Last change date is above 90days FAILED\" }"
+                                    fi
+                            done
+                    else
+                    passed="2stagespassed"
+                    fi
+            fi
+            else
+        [ $dtSec -lt $taSec ] && echo too old
+                 echo "{ \"Password date is above 90days FAILED\" }"
+                fi
+        else
+        echo "{ \"FAILED in password set to false\" }"
+    fi
+done
+if [[ $passed == '2stagespassed' ]]; then
+   if [ "$( aws iam get-credential-report --query 'Content' --output text | base64 -d | cut -d, -f9 | grep false | wc -l)" -eq "0" ]; then
+     for AccessKey1LastUsedDate in ` aws iam get-credential-report --query 'Content' --output text | base64 -d | cut -d, -f11 | sed 's/access_key_1_last_used_date//g' | sed 's/[N/A]//g' | sed '/^$/d'`;
+         do
+         dt2Sec=$(date --date "$AccessKey1LastUsedDate" +'%s')
+                if [ "dt2Sec=$dt2Sec, taSec=$taSec" >&2 ]; then
+                echo "{ \"PASSED For each user having an access_key_1_active  to TRUE , ensure the corresponding access_key_n_last_used_date is less than 90 days ago\" }"      
+                if [ "$( aws iam get-credential-report --query 'Content' --output text | base64 -d | cut -d, -f14 | grep false | wc -l)" -eq "0" ]; then
+                for AccessKey2LastUsedDate in ` aws iam get-credential-report --query 'Content' --output text | base64 -d | cut -d, -f16 | sed 's/access_key_2_last_used_date//g' | sed 's/[N/A]//g' | sed '/^$/d'`;
+                    do
+                    dt3Sec=$(date --date "$AccessKey2LastUsedDate" +'%s')
+                            if [ "dt3Sec=$dt3Sec, taSec=$taSec" >&2 ]; then
+                            echo "{ \"PASSED For each user having an access_key_2_active to TRUE , ensure the corresponding access_key_n_last_used_date is less than 90 days ago\" }"
+                                    passed2="3stagespassed"
+                                        else
+                    [ $dt3Sec -lt $taSec ] && echo too old
+                    echo "{ \"Password Last change date is above 90days FAILED\" }"
+                            fi
+                    done
+            else
+            echo "{ \"Failed in access_key_1_active\" }"
+            fi
+        else
+        [ $dt2Sec -lt $taSec ] && echo too old
+        echo "{ \"Password Last change date is above 90days FAILED\" }"
+        fi
+         done
+   else
+    echo "{ \"Failed in access_key_1_active\" }"
+   fi
+else
+ echo "{ \"Failed In previous Step\" }"
+fi
+if [ "$passed2" == '3stagespassed' ]; then
+    if [ "$( aws iam get-credential-report --query 'Content' --output text | base64 -d | cut -d, -f9 | grep false | wc -l)" -eq "0" ]; then
+        if [ "$( aws iam get-credential-report --query 'Content' --output text | base64 -d | cut -d, -f11 | grep "N/A" | wc -l)" -eq "0" ]; then
+                for AccessKey1LastRotated in `aws iam get-credential-report --query 'Content' --output text | base64 -d | cut -d, -f10 | sed 's/access_key_1_last_rotated//g' | sed 's/[N/A]//g'`;
+                do
+                dt4Sec=$(date --date "$AccessKey1LastRotated" +'%s')
+                        if [ "dt4Sec=$dt4Sec, taSec=$taSec" >&2 ]; then
+                        echo "{ \"PASSED When a user having an access_key_x_active (where x is 1 or 2) to TRUE and corresponding access_key_1_last_used_date is set to N/A, ensureaccess_key_1_last_rotated is less than 90 days ago\" }"
+                if [ "$( aws iam get-credential-report --query 'Content' --output text | base64 -d | cut -d, -f14 | grep false | wc -l)" -eq "0" ]; then
+                        if [ "$( aws iam get-credential-report --query 'Content' --output text | base64 -d | cut -d, -f16 | grep "N/A" | wc -l)" -eq "0" ]; then
+                                    for AccessKey2LastRotated in `aws iam get-credential-report --query 'Content' --output text | base64 -d | cut -d, -f15 | sed 's/access_key_2_last_rotated//g' | sed 's/[N/A]//g'`;
+                                    do
+                                dt5Sec=$(date --date "$AccessKey2LastRotated" +'%s')
+                                        if [ "dt5Sec=$dt5Sec, taSec=$taSec" >&2 ]; then
+                                        echo "{ \"PASSED When a user having an access_key_x_active (where x is 1 or 2) to TRUE and corresponding access_key_2_last_used_date is set to N/A, ensureaccess_key_2_last_rotated is less than 90 days ago\" }"
+                                                else
+                                [ $dt5Sec -lt $taSec ] && echo too old
+                                echo "{ \"access_key_2_last_used_date is above 90days FAILED\" }"
+                                        fi
+                                done
+                                    else
+                            echo "{ \"There is No N/A\" }"
+                            fi
+                    else
+                    echo "{ \"Failed in access_key_2_active\" }"
+                    fi
+                                else
+                [ $dt4Sec -lt $taSec ] && echo too old
+                echo "{ \"access_key_1_last_used_date is above 90days FAILED\" }"
+                fi
+                    done
+        else
+        echo "{ \"There is No N/A\" }"
+        fi
+    else
+    echo "{ \"Failed in access_key_1_active\" }"
+    fi
+else
+echo "{ \"FAILED In 3 stage\" }"
+fi

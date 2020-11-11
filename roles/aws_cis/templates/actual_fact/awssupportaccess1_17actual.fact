@@ -1,0 +1,19 @@
+#!/bin/bash
+# ** AUTO GENERATED **
+
+PolicyArn=$(aws iam list-policies  | jq '.Policies[].Arn' | grep AWSSupportAccess | sed 's/"//g')
+if [ "$(aws iam list-entities-for-policy --policy-arn $PolicyArn | grep -oP '(?<="RoleName": ")[^"]*' | wc -l)" eq 0 ]; then
+   count=$((count+1))
+fi
+
+VARIABLE=$(PolicyArn=$(aws iam list-policies  | jq '.Policies[].Arn' | grep AWSSupportAccess | sed 's/"//g')
+RoleNameValue=$(aws iam list-roles | jq -r '.Roles[].RoleName' | grep supportrole)
+if [ "$(aws iam list-entities-for-policy --policy-arn $PolicyArn | grep -oP '(?<="RoleName": ")[^"]*' | wc -l)" eq 0 ]; then
+   echo "{ \"PolicyId\" : \"$PolicyArn\", \"RoleNameValue\" : \"$RoleNameValue\" }"
+fi | tr '\n' ',' | sed 's/,$//')
+
+if [ "$count" -eq 0 ]; then  
+   echo "{ \"awssupportaccess\" : \"\" }"
+else
+   echo "{ \"awssupportaccess\" : [ $VARIABLE ] }"
+fi

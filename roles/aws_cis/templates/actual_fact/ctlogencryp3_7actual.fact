@@ -1,0 +1,18 @@
+#!/bin/bash
+# 3.7 Ensure CloudTrail logs are encrypted at rest using KMS CMKs
+
+count=0
+if [ $(aws cloudtrail describe-trails | jq '.trailList[]' | grep KmsKeyId | wc -l) -eq 0 ]; then
+ count=$((count+1))
+fi
+
+VARIABLE=$(if [ $(aws cloudtrail describe-trails | jq '.trailList[]' | grep KmsKeyId | wc -l) -eq 0 ]; then
+KMSKEYValue=$(aws kms list-keys | jq -r ".Keys[].KeyId")
+ echo "{ \"KMSKEY\" : \"$KMSKEYValue\" }"
+fi | tr '\n' ',' | sed 's/,$//')
+
+if [ "$count" -eq "0" ]; then
+   echo "{ \"cloudtraillogencryp\" :  \"\" }"
+else
+   echo "{ \"cloudtraillogencryp\" : [ $VARIABLE ] }"
+fi
